@@ -33,15 +33,16 @@ class LayoutScreen extends StatelessWidget {
           body: cubit.bottomScreens[cubit.currentIndex],
           bottomNavigationBar: Container(
             padding:
-                const EdgeInsets.only(bottom: 10.0, left: 5, right: 5, top: 0),
+                const EdgeInsets.only(bottom: 8.0, left: 5, right: 5, top: 3),
             height: 100.0,
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(50),
-                color: AppColors.backgroundColor),
+                //color: AppColors.backgroundColor
+                ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(70),
               child: CurvedNavigationBar(
-                  backgroundColor: AppColors.backgroundColor,
+                  backgroundColor: Colors.white,
                   buttonBackgroundColor: AppColors.buttonColor,
                   //fixedColor: AppColors.backgroundColor,
                   color: AppColors.buttonColor,
@@ -56,7 +57,7 @@ class LayoutScreen extends StatelessWidget {
                       size: 30,
                     ),
                     Icon(
-                      Icons.explore,
+                      Icons.apps,
                       color: changeBottomIconColor(1),
                       size: 30,
                     ),

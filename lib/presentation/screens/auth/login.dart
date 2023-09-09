@@ -43,7 +43,7 @@ class LoginScreen extends StatelessWidget {
                       key: 'login', value: state.loginModel.data.token)
                   .then((value) => navigateAndFinish(
                       context,
-                       LayoutScreen()));
+                       const LayoutScreen()));
             } else {
               defaultToast(
                 state: ToastState.ERROR,
@@ -227,7 +227,7 @@ class LoginScreen extends StatelessWidget {
                                           onPressed: () {
                                             navigateAndFinish(
                                                 context,
-                                                RegisterScreen()
+                                                const RegisterScreen()
                                                 );
                                           },
                                           child: Transform.translate(

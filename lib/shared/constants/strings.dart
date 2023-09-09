@@ -9,5 +9,11 @@ const baseUrl = 'https://student.valuxapps.com/api/';
 const LOGIN = 'login';
 const REGISTER = 'register';
 const HOME = 'home';
+const CATRGORIES = 'categories';
+const PRODUCTS = 'products';
+const FAVORITES = 'favorites';
+
+
+
 
 String? token;

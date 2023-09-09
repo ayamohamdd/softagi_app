@@ -14,3 +14,6 @@ void navigateAndFinish(context, widget) => Navigator.pushAndRemoveUntil(
       ),
       (Route<dynamic> route) => false,
     );
+
+                                    
+void navigateBack(context) => Navigator.pop(context);     

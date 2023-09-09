@@ -18,7 +18,6 @@ class HomeDataModel {
 
     json['products'].forEach((element) {
       products.add(ProductModel.fromJson(element));
-      print(products.length);
     });
   }
 }
@@ -39,7 +38,7 @@ class ProductModel {
   dynamic discount;
   String image = '';
   String? name;
-  bool? inFavorites;
+  bool inFavorites=false;
   bool? inCart;
   ProductModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -48,7 +47,7 @@ class ProductModel {
     discount = json['discount'];
     image = json['image'];
     name = json['name'];
-    inFavorites = json['in_favourits'];
+    inFavorites = json['in_favorites'];
     inCart = json['in_cart'];
   }
 }
