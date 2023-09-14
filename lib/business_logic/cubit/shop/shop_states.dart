@@ -1,4 +1,4 @@
-import 'package:store_app/presentation/models/favorits_model.dart';
+import 'package:store_app/presentation/models/change_favorits_model.dart';
 
 abstract class ShopStates {}
 
@@ -40,6 +40,13 @@ class ShopSuccessChangeFavoritsDataState extends ShopStates {
 class ShopErrorChangeFavoritsDataState extends ShopStates {}
 
 // Favorites screen
+class ShopLoadingGetFavoritsDataState extends ShopStates {}
+
 class ShopSuccessGetFavoritsDataState extends ShopStates {}
 
 class ShopErrorGetFavoritsDataState extends ShopStates {}
+
+// Change Lists in favorites
+class ShopSuccessChangeListsState extends ShopStates {}
+
+class ShopErrorChangeListsState extends ShopStates {}

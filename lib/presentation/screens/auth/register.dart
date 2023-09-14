@@ -13,7 +13,7 @@ import 'package:store_app/shared/constants/colors.dart';
 import '../../../business_logic/cubit/auth/register/register_states.dart';
 import '../../../shared/components/navigate.dart';
 import '../../../shared/components/toast.dart';
-import '../products.dart';
+import '../home.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});

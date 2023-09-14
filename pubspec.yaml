@@ -32,6 +32,7 @@ dependencies:
   animated_splash_screen: ^1.3.0
   animated_text_kit: ^4.2.2
   bloc: ^8.1.2
+  carousel_indicator: ^1.0.6
   carousel_slider: ^4.2.1
   conditional_builder_null_safety: ^0.0.6
   cupertino_icons: ^1.0.5
@@ -39,18 +40,23 @@ dependencies:
   dio: ^5.3.2
   flutter:
     sdk: flutter
+  flutter_advanced_networkimage_2: ^2.0.1
   flutter_bloc: ^8.1.3
+  flutter_image_compress: ^1.0.0
   flutter_offline: ^2.1.0
-  flutter_svg: ^2.0.5
+  flutter_svg: ^1.0.0
   fluttertoast: ^8.2.2
-  http: ^1.1.0
+  http: ^0.13.4
+  image: ^3.0.1
   image_picker: ^1.0.4
   intl_phone_field: ^3.2.0
   intl_phone_number_input: ^0.7.3+1
   lottie: ^2.6.0
   remove_background: ^0.0.1
+  retry: ^3.1.2
   shared_preferences: ^2.2.0
   smooth_page_indicator: ^1.1.0
+  transparent_image: ^2.0.1
 dev_dependencies:
   flutter_lints: ^2.0.2
   flutter_test:

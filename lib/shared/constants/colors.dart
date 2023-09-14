@@ -13,7 +13,7 @@ class AppColors {
   static const Color iconColor = Color(0xFFC6D2CE);
   static const Color errorColor = Colors.redAccent;
   static const Color warningColor = Colors.amber;
-  static const Color white = Colors.white;
+  static const Color containerColor = Colors.white;
   static const Color bluredColor = Color(0xFFC6D1CE);
 
   // Dark

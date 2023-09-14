@@ -13,7 +13,7 @@ class ProductCubit extends Cubit<ProductStates> {
 
   void getProductDetailsData() {
     emit(ProductLoadingDataState());
-    DioHelper.getData(url: baseUrl + PRODUCTS, token: token).then((value) {
+    DioHelper.getData(url: baseUrl + PRODUCTS, token: token,).then((value) {
       productDetailsModel = ProductDetailsModel.fromJson(value.data);
       emit(ProductSuccessDataState());
     }).catchError((error) {

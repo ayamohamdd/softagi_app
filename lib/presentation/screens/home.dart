@@ -2,7 +2,9 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:store_app/business_logic/cubit/products/products_cubit.dart';
 import 'package:store_app/presentation/models/categories_model.dart';
+import 'package:store_app/presentation/models/product_details_model.dart';
 import 'package:store_app/presentation/models/product_model.dart';
 import 'package:store_app/presentation/screens/product_details.dart';
 import 'package:store_app/shared/components/form.dart';
@@ -14,9 +16,24 @@ import 'package:store_app/shared/constants/colors.dart';
 import '../../business_logic/cubit/shop/shop_cubit.dart';
 import '../../business_logic/cubit/shop/shop_states.dart';
 
-class ProductsScreen extends StatelessWidget {
+class ProductsScreen extends StatefulWidget {
   ProductsScreen({super.key});
+
+  @override
+  State<ProductsScreen> createState() => _ProductsScreenState();
+}
+
+class _ProductsScreenState extends State<ProductsScreen> {
   final TextEditingController search = TextEditingController();
+  String image = '';
+  @override
+
+
+  void changeImage(String imagePath) async{
+    image = await RemoveBackgroud.removeBg(imagePath);
+      ShopCubit.get(context).state;
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<ShopCubit, ShopStates>(
@@ -83,7 +100,7 @@ class ProductsScreen extends StatelessWidget {
                             Stack(
                               children: [
                                 CircleAvatar(
-                                  backgroundColor: Colors.white,
+                                  backgroundColor: AppColors.containerColor,
                                   radius: 20,
                                   child: Icon(
                                     Icons.shopping_cart,
@@ -101,7 +118,7 @@ class ProductsScreen extends StatelessWidget {
                                         style: TextStyle(
                                             fontSize: 8,
                                             fontWeight: FontWeight.bold,
-                                            color: Colors.white),
+                                            color: AppColors.containerColor),
                                       )),
                                 ),
                               ],
@@ -123,7 +140,7 @@ class ProductsScreen extends StatelessWidget {
                       controller: search,
                       type: TextInputType.text,
                       label: 'Search',
-                      formColor: Colors.white,
+                      formColor: AppColors.containerColor,
                       prefix: Icons.search,
                       suffix: Icons.clear,
                       suffixColor: AppColors.iconColor,
@@ -133,9 +150,11 @@ class ProductsScreen extends StatelessWidget {
                   ),
                   ConditionalBuilder(
                       condition: ShopCubit.get(context).homeModel != null &&
-                          ShopCubit.get(context).categoriesModel != null,
+                          ShopCubit.get(context).categoriesModel != null &&
+                          ShopCubit.get(context).productDetailsModel != null,
                       builder: (context) => productsModelBuilder(
                           ShopCubit.get(context).homeModel,
+                          ShopCubit.get(context).productDetailsModel,
                           ShopCubit.get(context).categoriesModel,
                           context),
                       fallback: (BuildContext context) =>
@@ -149,8 +168,11 @@ class ProductsScreen extends StatelessWidget {
     );
   }
 
-  Widget productsModelBuilder(HomeModel? homeModel,
-          CategoriesModel? categoriesModel, BuildContext context) =>
+  Widget productsModelBuilder(
+          HomeModel? homeModel,
+          ProductDetailsModel? productDetailsModel,
+          CategoriesModel? categoriesModel,
+          BuildContext context) =>
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -225,10 +247,11 @@ class ProductsScreen extends StatelessWidget {
             crossAxisSpacing: 10,
             mainAxisSpacing: 15,
             childAspectRatio: 1 / 1.6,
-            children: List.generate(
-                homeModel.data!.products.length,
-                (index) => buildGridProducts(
-                    homeModel.data!.products[index], context, index)),
+            children: List.generate(homeModel.data!.products.length, (index) {
+              changeImage(productDetailsModel!.data!.data[index].image);
+              return buildGridProducts(
+                  productDetailsModel.data!.data[index], context, index);
+            }),
           )
         ],
       );
@@ -259,7 +282,7 @@ Widget buildCategoriesModel(DataModel dataModel) => Stack(
               dataModel.name.toUpperCase(),
               style: const TextStyle(
                   fontSize: 15,
-                  color: Colors.white,
+                  color: AppColors.containerColor,
                   fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
@@ -268,29 +291,25 @@ Widget buildCategoriesModel(DataModel dataModel) => Stack(
       ],
     );
 
-Widget buildGridProducts(ProductModel model, BuildContext context, index) {
-  //RemoveBackgroud.removeBackground(model.image);
+Widget buildGridProducts(
+    ProductDetailsData model, BuildContext context, index) {
+  // String img =
+  //     'https://student.valuxapps.com/storage/uploads/products/1615440689Oojt6.item_XXL_36330138_142814947.jpeg';
+  // ShopCubit.get(context).removeBackgroud(img);
   return InkWell(
     onTap: () {
+      
       print(index);
       navigateTo(
           context,
           ProductDetailsScreen(
             index: index,
-            id: model.id,
-            price: model.price,
-            oldPrice: model.oldPrice,
-            discount: model.discount,
-            image: model.image,
-            name: model.name,
-            inCart: model.inCart,
-            inFavorites: model.inFavorites,
           ));
     },
     child: Container(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(29), color: Colors.white),
+          borderRadius: BorderRadius.circular(29), color: AppColors.containerColor),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -311,28 +330,27 @@ Widget buildGridProducts(ProductModel model, BuildContext context, index) {
                 ),
               ),
               Positioned(
-                  top: 10,
-                  right: 5,
-                  child: CircleAvatar(
-                    radius: 15,
-                    backgroundColor:
-                        ShopCubit.get(context).favorits[model.id] == true
-                            ? AppColors.buttonColor
-                            : AppColors.elevColor,
-                    child: IconButton(
-                      iconSize: 20,
-                      padding: EdgeInsets.zero,
-                      icon: Icon(
-                        ShopCubit.get(context).favorits[model.id] == true
-                            ? Icons.favorite
-                            : Icons.favorite_border_outlined,
-                        color: Colors.white,
-                      ),
-                      onPressed: () {
-                        ShopCubit.get(context).changeFavorits(model.id);
-                      },
+                top: 8,
+                right: 0,
+                child: CircleAvatar(
+                  backgroundColor: AppColors.containerColor,
+                  child: IconButton(
+                    iconSize: 24,
+                    padding: EdgeInsets.zero,
+                    icon: Icon(
+                      ShopCubit.get(context).favorites[model.id] == true
+                          ? Icons.favorite
+                          : Icons.favorite_border_outlined,
+                      color: ShopCubit.get(context).favorites[model.id] == true
+                          ? AppColors.errorColor
+                          : AppColors.iconColor,
                     ),
-                  )),
+                    onPressed: () {
+                      ShopCubit.get(context).changeFavorits(model.id);
+                    },
+                  ),
+                ),
+              ),
               if (model.discount != 0)
                 Positioned(
                     child: Container(
@@ -345,7 +363,7 @@ Widget buildGridProducts(ProductModel model, BuildContext context, index) {
                     style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white),
+                        color: AppColors.containerColor),
                     textAlign: TextAlign.center,
                   ),
                 )),

@@ -20,7 +20,7 @@ class CategoriesScreen extends StatelessWidget {
             title: Text('Softagi'.toUpperCase()),
             //centerTitle: true,
             titleTextStyle: TextStyle(
-                color: Colors.white,
+                color: AppColors.containerColor,
                 fontWeight: FontWeight.bold,
                 fontSize: 20,
                 fontFamily: 'Poppins'),
@@ -82,7 +82,7 @@ class CategoriesScreen extends StatelessWidget {
   Widget buildCategoryModel(DataModel model) => Container(
         width: double.infinity,
         height: 150,
-        decoration: const BoxDecoration(color: Colors.white),
+        decoration: const BoxDecoration(color: AppColors.containerColor),
         child: Padding(
           padding: const EdgeInsets.all(10.0),
           child:

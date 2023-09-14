@@ -25,24 +25,24 @@ class ProductDetailsDataModel {
 class ProductDetailsData {
   String description = '';
   List<dynamic> images = [];
-  // dynamic id;
-  // dynamic price;
-  // dynamic oldPrice;
-  // dynamic discount;
-  // String image = '';
-  // String? name;
-  // bool? inFavorites;
-  // bool? inCart;
+  dynamic id;
+  dynamic price;
+  dynamic oldPrice;
+  dynamic discount;
+  String image = '';
+  String name='';
+  bool? inFavorites;
+  bool? inCart;
   ProductDetailsData.fromJson(Map<String, dynamic> json) {
     description = json['description'];
     images = json['images'];
-    // id = json['id'];
-    // price = json['price'];
-    // oldPrice = json['old_price'];
-    // discount = json['discount'];
-    // image = json['image'];
-    // name = json['name'];
-    // inFavorites = json['in_favourits'];
-    // inCart = json['in_cart'];
+    id = json['id'];
+    price = json['price'];
+    oldPrice = json['old_price'];
+    discount = json['discount'];
+    image = json['image'];
+    name = json['name'];
+    inFavorites = json['in_favorites'];
+    inCart = json['in_cart'];
   }
 }

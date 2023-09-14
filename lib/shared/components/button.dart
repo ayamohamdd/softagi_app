@@ -11,21 +11,26 @@ Widget defaultButton({
   double radius=10.0,
   required void Function() onPressed,
   required String text,
+  FontWeight fontWeight=FontWeight.bold,
+  double fontSize=18.0,
+  Color color=AppColors.buttonColor,
+  Color textColor=AppColors.fontColor,
+
 })=> Container(
   width: width,
   height: height,
   decoration: BoxDecoration(
     borderRadius: BorderRadius.circular(radius),
-    color: AppColors.buttonColor,
+    color: color,
   ),
   child: MaterialButton(
     onPressed: onPressed,
     child:  Text(
       isUpperCase? text.toUpperCase():text,
-      style: const TextStyle(
-        color: AppColors.backgroundColor,
-        fontWeight:FontWeight.bold,
-        fontSize: 18.0,
+      style:  TextStyle(
+        color: textColor,
+        fontWeight:fontWeight,
+        fontSize: fontSize,
       ),
     ),
   ),

@@ -1,6 +1,6 @@
 class FavoritesModel {
   bool? status;
-  Null? message;
+  String? message;
   Data? data;
   FavoritesModel.fromJson(Map<String, dynamic> json) {
     status = json['status'];
@@ -28,7 +28,7 @@ class Data {
     if (json['data'] != null) {
       data = <FavoritesData>[];
       json['data'].forEach((v) {
-        data!.add(new FavoritesData.fromJson(v));
+        data!.add( FavoritesData.fromJson(v));
       });
     }
     firstPageUrl = json['first_page_url'];
@@ -55,7 +55,7 @@ class FavoritesData {
 }
 
 class Product {
-  int? id;
+  int id=0;
   dynamic price;
   dynamic oldPrice;
   dynamic discount;
