@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:store_app/business_logic/cubit/products/products_cubit.dart';
-import 'package:store_app/business_logic/cubit/shop/shop_cubit.dart';
+import 'package:store_app/business_logic/cubit/home/shop_cubit.dart';
 import 'package:store_app/data/local/cache_helper.dart';
 import 'package:store_app/data/remote/dio_helper.dart';
 import 'package:store_app/presentation/screens/splash.dart';
 import 'package:store_app/shared/components/blocObserver.dart';
-import 'package:store_app/shared/components/temp2.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,9 +24,8 @@ class StoreApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-            create: (BuildContext context) => ShopCubit()..getHomeProductData()..getHomebannerData()..getCategoriesData()..getFavoritesData()),
-            BlocProvider(
-            create: (BuildContext context) => ProductCubit()..getProductDetailsData()),
+            create: (BuildContext context) => ShopCubit()..getHomeData()..getCategoriesData()..getFavoritesData()..getUser()..getProductDetailsData()),
+           
       ],
       child:  MaterialApp(
         debugShowCheckedModeBanner: false,

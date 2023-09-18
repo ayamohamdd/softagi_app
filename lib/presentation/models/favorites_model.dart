@@ -45,7 +45,7 @@ class Data {
 }
 
 class FavoritesData {
-  int? id;
+  dynamic id;
   Product? product;
   FavoritesData.fromJson(Map<String, dynamic> json) {
     id = json['id'];

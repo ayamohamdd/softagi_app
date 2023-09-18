@@ -37,7 +37,7 @@ class ProductModel {
   dynamic oldPrice;
   dynamic discount;
   String image = '';
-  String? name;
+  String name='';
   bool inFavorites=false;
   bool? inCart;
   ProductModel.fromJson(Map<String, dynamic> json) {

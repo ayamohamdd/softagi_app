@@ -1,10 +1,10 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:store_app/business_logic/cubit/shop/shop_cubit.dart';
+import 'package:store_app/business_logic/cubit/home/shop_cubit.dart';
 import 'package:store_app/shared/constants/colors.dart';
 
-import '../../business_logic/cubit/shop/shop_states.dart';
+import '../../business_logic/cubit/home/shop_states.dart';
 
 class LayoutScreen extends StatelessWidget {
   const LayoutScreen({super.key});

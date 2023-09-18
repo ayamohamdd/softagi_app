@@ -5,15 +5,15 @@ const splashScreen = '/';
 
 // Api
 const baseUrl = 'https://student.valuxapps.com/api/';
+
 // End points
 const LOGIN = 'login';
 const REGISTER = 'register';
 const HOME = 'home';
 const CATRGORIES = 'categories';
-const PRODUCTS = 'products';
+var PRODUCTS = 'products/';
 const FAVORITES = 'favorites';
-
-
+const PROFILE = 'profile';
 
 
 String? token;

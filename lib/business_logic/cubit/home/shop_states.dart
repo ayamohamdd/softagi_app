@@ -1,4 +1,5 @@
 import 'package:store_app/presentation/models/change_favorits_model.dart';
+import 'package:store_app/presentation/models/product_details_model.dart';
 
 abstract class ShopStates {}
 
@@ -50,3 +51,35 @@ class ShopErrorGetFavoritsDataState extends ShopStates {}
 class ShopSuccessChangeListsState extends ShopStates {}
 
 class ShopErrorChangeListsState extends ShopStates {}
+
+class ProductInitialState extends ShopStates {}
+
+class ProductLoadingDataState extends ShopStates {}
+
+class ProductSuccessDataState extends ShopStates {
+  // final ProductDetailsModel? model;
+
+  // ProductSuccessDataState(this.model);
+}
+
+class ProductErrorDataState extends ShopStates {}
+
+// Profile screen
+class ShopLoadingUserDataState extends ShopStates {}
+
+class ShopSuccessGetUserDataState extends ShopStates {}
+
+class ShopErrorGetUserDataState extends ShopStates {}
+
+class ShopCategoryPressedState extends ShopStates {}
+
+class ShopLoadingGetProfileDataState extends ShopStates {}
+
+class ShopSuccessGetProfileDataState extends ShopStates {
+  final userModel;
+  ShopSuccessGetProfileDataState(this.userModel);
+
+  
+}
+
+class ShopErrorGetProfileDataState extends ShopStates {}

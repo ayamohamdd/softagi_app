@@ -1,11 +1,14 @@
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:store_app/business_logic/cubit/shop/shop_cubit.dart';
-import 'package:store_app/business_logic/cubit/shop/shop_states.dart';
+import 'package:store_app/business_logic/cubit/home/shop_cubit.dart';
+import 'package:store_app/business_logic/cubit/home/shop_states.dart';
 import 'package:store_app/presentation/models/categories_model.dart';
 import 'package:store_app/presentation/models/favorites_model.dart';
+import 'package:store_app/presentation/screens/category_details.dart';
+import 'package:store_app/presentation/screens/product_details.dart';
 import 'package:store_app/shared/components/button.dart';
+import 'package:store_app/shared/components/navigate.dart';
 import 'package:store_app/shared/constants/colors.dart';
 
 class FavouritsScreen extends StatefulWidget {
@@ -116,7 +119,7 @@ class _FavouritsScreenState extends State<FavouritsScreen> {
                                   .favoritesModel!
                                   .data!
                                   .data![index])
-                              : buildCategoryModel(ShopCubit.get(context).categoriesModel!.data!.data[index]),
+                              : buildCategoryModel(ShopCubit.get(context).categoriesModel!.data!.data[index],index),
                           separatorBuilder: (context, index) => const SizedBox(
                                 height: 10.0,
                               ),
@@ -140,7 +143,10 @@ class _FavouritsScreenState extends State<FavouritsScreen> {
   }
 
   Widget buildFavoritesModel(FavoritesData model) => InkWell(
-        onTap: () {},
+        onTap: () {
+          navigateTo(context,
+                            ProductDetailsScreen(product_id: model.id));
+        },
         child: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
@@ -186,10 +192,15 @@ class _FavouritsScreenState extends State<FavouritsScreen> {
               ),
               Expanded(
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        // navigateTo(context,
+                        //     ProductDetailsScreen(product_id: model.id));
+                      },
                       child: Text(
                         '${model.product!.name}',
                         style: const TextStyle(
@@ -267,7 +278,7 @@ class _FavouritsScreenState extends State<FavouritsScreen> {
         ),
       );
 
-Widget buildCategoryModel(DataModel model) => Container(
+Widget buildCategoryModel(DataModel model,int index) => Container(
         width: double.infinity,
         height: 120,
         decoration: const BoxDecoration(color: AppColors.containerColor),
@@ -295,7 +306,12 @@ Widget buildCategoryModel(DataModel model) => Container(
               ),
             ),
             IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  navigateTo(
+                      context,
+                      CategoryDetailsScreen(index: index,),
+                    );
+                },
                 icon: const Icon(
                   Icons.arrow_forward_ios,
                   color: AppColors.iconColor,

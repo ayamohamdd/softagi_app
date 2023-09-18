@@ -2,19 +2,17 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:store_app/business_logic/cubit/products/products_cubit.dart';
+import 'package:store_app/business_logic/cubit/home/shop_cubit.dart';
 import 'package:store_app/presentation/models/categories_model.dart';
-import 'package:store_app/presentation/models/product_details_model.dart';
 import 'package:store_app/presentation/models/product_model.dart';
 import 'package:store_app/presentation/screens/product_details.dart';
+import 'package:store_app/shared/components/button.dart';
 import 'package:store_app/shared/components/form.dart';
 import 'package:store_app/shared/components/navigate.dart';
-import 'package:store_app/shared/components/remove_background.dart';
 import 'package:store_app/shared/components/toast.dart';
 import 'package:store_app/shared/constants/colors.dart';
 
-import '../../business_logic/cubit/shop/shop_cubit.dart';
-import '../../business_logic/cubit/shop/shop_states.dart';
+import '../../business_logic/cubit/home/shop_states.dart';
 
 class ProductsScreen extends StatefulWidget {
   ProductsScreen({super.key});
@@ -26,13 +24,14 @@ class ProductsScreen extends StatefulWidget {
 class _ProductsScreenState extends State<ProductsScreen> {
   final TextEditingController search = TextEditingController();
   String image = '';
+  bool isCategoryPressed = false;
+  int categoryIndex = 0;
   @override
 
-
-  void changeImage(String imagePath) async{
-    image = await RemoveBackgroud.removeBg(imagePath);
-      ShopCubit.get(context).state;
-  }
+  // void changeImage(String imagePath) async{
+  //   image = await RemoveBackgroud.removeBg(imagePath);
+  //     ShopCubit.get(context).state;
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -150,11 +149,11 @@ class _ProductsScreenState extends State<ProductsScreen> {
                   ),
                   ConditionalBuilder(
                       condition: ShopCubit.get(context).homeModel != null &&
-                          ShopCubit.get(context).categoriesModel != null &&
-                          ShopCubit.get(context).productDetailsModel != null,
+                          ShopCubit.get(context).categoriesModel != null,
+                          //ShopCubit.get(context).productDetailsModel != null,
                       builder: (context) => productsModelBuilder(
                           ShopCubit.get(context).homeModel,
-                          ShopCubit.get(context).productDetailsModel,
+                          //ShopCubit.get(context).productDetailsModel,
                           ShopCubit.get(context).categoriesModel,
                           context),
                       fallback: (BuildContext context) =>
@@ -170,7 +169,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
 
   Widget productsModelBuilder(
           HomeModel? homeModel,
-          ProductDetailsModel? productDetailsModel,
+          //ProductDetailsModel? productDetailsModel,
           CategoriesModel? categoriesModel,
           BuildContext context) =>
       Column(
@@ -199,40 +198,20 @@ class _ProductsScreenState extends State<ProductsScreen> {
             height: 20,
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 0.0),
+            padding: const EdgeInsets.only(left: 3.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Categories',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(
-                  height: 15.0,
-                ),
                 SizedBox(
-                  height: 100.0,
+                  height: 40.0,
                   child: ListView.separated(
                       scrollDirection: Axis.horizontal,
                       shrinkWrap: true,
-                      itemBuilder: (context, index) => buildCategoriesModel(
-                          categoriesModel.data!.data[index]),
+                      itemBuilder: (context, index) =>
+                          buildCategoryItem(context, index),
                       separatorBuilder: (context, index) =>
                           const SizedBox(width: 10.0),
-                      itemCount: categoriesModel!.data!.data.length),
-                ),
-                const SizedBox(
-                  height: 20.0,
-                ),
-                const Text(
-                  'New Products',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
+                      itemCount: categoriesModel!.data!.data.length+1),
                 ),
                 const SizedBox(
                   height: 15.0,
@@ -247,69 +226,66 @@ class _ProductsScreenState extends State<ProductsScreen> {
             crossAxisSpacing: 10,
             mainAxisSpacing: 15,
             childAspectRatio: 1 / 1.6,
-            children: List.generate(homeModel.data!.products.length, (index) {
-              changeImage(productDetailsModel!.data!.data[index].image);
+            children: List.generate(
+                ShopCubit.get(context).categoryIndex==0
+                    ? homeModel.data!.products.length
+                    : ShopCubit.get(context)
+                        .categories[ShopCubit.get(context).categoryIndex-1]
+                        .length, (index) {
+              //changeImage(productDetailsModel!.data!.data[index].image);
               return buildGridProducts(
-                  productDetailsModel.data!.data[index], context, index);
+                  ShopCubit.get(context).categoryIndex==0
+                      ? homeModel.data!.products[index]
+                      : ShopCubit.get(context)
+                              .categories[ShopCubit.get(context).categoryIndex-1][index],
+                  context,
+                  index);
             }),
           )
         ],
       );
 }
 
-Widget buildCategoriesModel(DataModel dataModel) => Stack(
-      alignment: AlignmentDirectional.bottomCenter,
-      children: [
-        SizedBox(
-          width: 100,
-          height: 100,
-          child: Image(
-            image: NetworkImage(
-              dataModel.image,
-            ),
-            width: 100,
-            height: 100,
-            fit: BoxFit.cover,
-          ),
-        ),
-        Positioned(
-            child: Container(
-          width: 100,
-          height: 100,
-          decoration: const BoxDecoration(color: AppColors.buttonOpacityColor),
-          child: Center(
-            child: Text(
-              dataModel.name.toUpperCase(),
-              style: const TextStyle(
-                  fontSize: 15,
-                  color: AppColors.containerColor,
-                  fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ))
-      ],
-    );
+Widget buildCategoryItem(BuildContext context, int index) {
+  Color buttonColor = ShopCubit.get(context).categoryIndex == index
+      ? AppColors.containerColor : ShopCubit.get(context).categoryColor
+       ;
+  return SizedBox(
+    width: 120,
+    height: 30,
+    child: defaultButton(
+        color: buttonColor,
+        onPressed: () {
+          ShopCubit.get(context).categoryPressed(index);
+        },
+          
+        text: ShopCubit.get(context).getCategoryName(index),
+        fontSize: 14,
+        height: 30,
+        isUpperCase: false),
+  );
+}
 
 Widget buildGridProducts(
-    ProductDetailsData model, BuildContext context, index) {
+    ProductModel model, BuildContext context, index) {
   // String img =
   //     'https://student.valuxapps.com/storage/uploads/products/1615440689Oojt6.item_XXL_36330138_142814947.jpeg';
   // ShopCubit.get(context).removeBackgroud(img);
   return InkWell(
     onTap: () {
-      
-      print(index);
+      //print(model.id);
       navigateTo(
           context,
           ProductDetailsScreen(
-            index: index,
+            product_id: model.id,
+            
           ));
     },
     child: Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+      padding: EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(29), color: AppColors.containerColor),
+          borderRadius: BorderRadius.circular(20),
+          color: AppColors.containerColor),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -377,7 +353,7 @@ Widget buildGridProducts(
                 color: AppColors.fontColor,
                 fontSize: 14,
                 height: 1.2,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.bold,
                 overflow: TextOverflow.ellipsis,
               ),
               maxLines: 2,
