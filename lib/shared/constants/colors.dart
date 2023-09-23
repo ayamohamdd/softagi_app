@@ -7,6 +7,8 @@ class AppColors {
   static const Color buttonColor = Color(0xFF156B51);
   static const Color buttonOpacityColor = Color.fromARGB(95, 21, 107, 81);
   static const Color fontColor = Color(0xFF272E2A);
+  static const Color fontColorBlured = Color.fromARGB(162, 39, 46, 42);
+
   static const Color elevColor = Color(0xFFE2EBE5);
   static const Color formColor = Color(0xFFECF0ED);
   static const Color alignColor = Color.fromARGB(55, 167, 194, 178);

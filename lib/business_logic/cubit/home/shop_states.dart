@@ -1,3 +1,4 @@
+import 'package:store_app/presentation/models/change_cart_model.dart';
 import 'package:store_app/presentation/models/change_favorits_model.dart';
 import 'package:store_app/presentation/models/product_details_model.dart';
 
@@ -78,8 +79,26 @@ class ShopLoadingGetProfileDataState extends ShopStates {}
 class ShopSuccessGetProfileDataState extends ShopStates {
   final userModel;
   ShopSuccessGetProfileDataState(this.userModel);
-
-  
 }
 
 class ShopErrorGetProfileDataState extends ShopStates {}
+
+// Cart Screen
+
+class ShopLoadingGetCartDataState extends ShopStates {}
+
+class ShopSuccessGetCartDataState extends ShopStates {}
+
+class ShopErrorGetCartDataState extends ShopStates {}
+class ShopEmptyCartDataState  extends ShopStates {}
+
+// change Cart 
+class ShopInitialChangeCartDataState extends ShopStates {}
+
+class ShopSuccessChangeCartDataState extends ShopStates {
+  final ChangeCartModel? model;
+
+  ShopSuccessChangeCartDataState(this.model);
+}
+
+class ShopErrorChangeCartDataState extends ShopStates {}

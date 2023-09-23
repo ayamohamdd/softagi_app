@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:store_app/business_logic/cubit/home/shop_cubit.dart';
 import 'package:store_app/presentation/models/categories_model.dart';
 import 'package:store_app/presentation/models/product_model.dart';
+import 'package:store_app/presentation/screens/carts.dart';
 import 'package:store_app/presentation/screens/product_details.dart';
 import 'package:store_app/shared/components/button.dart';
 import 'package:store_app/shared/components/form.dart';
@@ -45,121 +46,158 @@ class _ProductsScreenState extends State<ProductsScreen> {
         }
       },
       builder: (context, state) {
+        //print(ShopCubit.get(context).cartModel);
         return Scaffold(
           backgroundColor: AppColors.backgroundColor,
           body: SafeArea(
             child: SingleChildScrollView(
                 child: Padding(
               padding: const EdgeInsets.all(18.0),
-              child: Column(
-                children: [
-                  // Header
-                  const Padding(
-                    padding: EdgeInsets.all(10.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: ConditionalBuilder(
+                  fallback: (context) => const Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                  condition: ShopCubit.get(context).userModel != null &&
+                      ShopCubit.get(context).cartModel != null,
+                  builder: (context) {
+                   // ShopCubit.get(context).getCartData();
+                    return Column(
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  'Welcome, ',
-                                  style: TextStyle(
-                                    fontSize: 20.0,
-                                  ),
-                                ),
-                                Text(
-                                  'Emile',
-                                  style: TextStyle(
+                        // Header
+                        Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Welcome, ',
+                                    style: TextStyle(
                                       fontSize: 20.0,
-                                      fontWeight: FontWeight.w800),
-                                ),
-                              ],
-                            ),
-                            Text(
-                              'in',
-                              style: TextStyle(
-                                fontSize: 20.0,
-                              ),
-                            ),
-                            Text(
-                              'SOFTAGI',
-                              style: TextStyle(
-                                  fontSize: 38.0,
-                                  fontWeight: FontWeight.w900,
-                                  color: AppColors.buttonColor),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Stack(
-                              children: [
-                                CircleAvatar(
-                                  backgroundColor: AppColors.containerColor,
-                                  radius: 20,
-                                  child: Icon(
-                                    Icons.shopping_cart,
-                                    color: AppColors.iconColor,
+                                    ),
                                   ),
-                                ),
-                                Positioned(
-                                  top: -0.5,
-                                  left: 22,
-                                  child: CircleAvatar(
-                                      backgroundColor: AppColors.errorColor,
-                                      radius: 6,
-                                      child: Text(
-                                        '2',
+                                  Row(
+                                    children: [
+                                      Text(
+                                        ShopCubit.get(context)
+                                            .userModel!
+                                            .data!
+                                            .name,
+                                        style: const TextStyle(
+                                            fontSize: 20.0,
+                                            fontWeight: FontWeight.w800),
+                                      ),
+                                      const Text(
+                                        ' in',
                                         style: TextStyle(
-                                            fontSize: 8,
-                                            fontWeight: FontWeight.bold,
-                                            color: AppColors.containerColor),
-                                      )),
-                                ),
-                              ],
-                            ),
-                            SizedBox(
-                              width: 6,
-                            ),
-                            CircleAvatar(
-                              backgroundImage:
-                                  AssetImage('assets/images/profile.jpg'),
-                              radius: 30,
-                            ),
-                          ],
-                        )
+                                          fontSize: 20.0,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const Text(
+                                    'SOFTAGI',
+                                    style: TextStyle(
+                                        fontSize: 38.0,
+                                        fontWeight: FontWeight.w900,
+                                        color: AppColors.buttonColor),
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Stack(
+                                    children: [
+                                      InkWell(
+                                        onTap: () {
+                                          navigateTo(
+                                              context, const CartScreen());
+                                        },
+                                        child: CircleAvatar(
+                                          backgroundColor:
+                                              AppColors.containerColor,
+                                          radius: 25,
+                                          child: IconButton(
+                                            onPressed: () {
+                                              print('icon presses');
+                                              navigateTo(
+                                                  context, const CartScreen());
+                                            },
+                                            icon: const Icon(
+                                              Icons.shopping_cart,
+                                              color: AppColors.iconColor,
+                                              size: 25,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Positioned(
+                                        top: -0.1,
+                                        left: 22,
+                                        child: CircleAvatar(
+                                            backgroundColor:
+                                                AppColors.errorColor,
+                                            radius: 6,
+                                            child: Text(
+                                              ShopCubit.get(context)
+                                                          .cartModel!
+                                                          !=
+                                                      null
+                                                  ? '${ShopCubit.get(context).cartModel!.cartData!.cartItemData.length}'
+                                                  : '0',
+                                              style: const TextStyle(
+                                                  fontSize: 8,
+                                                  fontWeight: FontWeight.bold,
+                                                  color:
+                                                      AppColors.containerColor),
+                                            )),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(
+                                    width: 6,
+                                  ),
+                                  const CircleAvatar(
+                                    backgroundImage:
+                                        AssetImage('assets/images/profile.jpg'),
+                                    radius: 30,
+                                  ),
+                                ],
+                              )
+                            ],
+                          ),
+                        ),
+                        defaultFormField(
+                            controller: search,
+                            type: TextInputType.text,
+                            label: 'Search',
+                            formColor: AppColors.containerColor,
+                            prefix: Icons.search,
+                            suffix: Icons.clear,
+                            suffixColor: AppColors.iconColor,
+                            suffixPressed: () {}),
+                        const SizedBox(
+                          height: 20.0,
+                        ),
+                        ConditionalBuilder(
+                            condition: ShopCubit.get(context).homeModel !=
+                                    null &&
+                                ShopCubit.get(context).categoriesModel != null,
+                            //ShopCubit.get(context).productDetailsModel != null,
+                            builder: (context) => productsModelBuilder(
+                                ShopCubit.get(context).homeModel,
+                                //ShopCubit.get(context).productDetailsModel,
+                                ShopCubit.get(context).categoriesModel,
+                                context),
+                            fallback: (BuildContext context) => const Center(
+                                child: CircularProgressIndicator()))
                       ],
-                    ),
-                  ),
-                  defaultFormField(
-                      controller: search,
-                      type: TextInputType.text,
-                      label: 'Search',
-                      formColor: AppColors.containerColor,
-                      prefix: Icons.search,
-                      suffix: Icons.clear,
-                      suffixColor: AppColors.iconColor,
-                      suffixPressed: () {}),
-                  const SizedBox(
-                    height: 20.0,
-                  ),
-                  ConditionalBuilder(
-                      condition: ShopCubit.get(context).homeModel != null &&
-                          ShopCubit.get(context).categoriesModel != null,
-                          //ShopCubit.get(context).productDetailsModel != null,
-                      builder: (context) => productsModelBuilder(
-                          ShopCubit.get(context).homeModel,
-                          //ShopCubit.get(context).productDetailsModel,
-                          ShopCubit.get(context).categoriesModel,
-                          context),
-                      fallback: (BuildContext context) =>
-                          const Center(child: CircularProgressIndicator()))
-                ],
-              ),
+                    );
+                  }),
             )),
           ),
         );
@@ -211,7 +249,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                           buildCategoryItem(context, index),
                       separatorBuilder: (context, index) =>
                           const SizedBox(width: 10.0),
-                      itemCount: categoriesModel!.data!.data.length+1),
+                      itemCount: categoriesModel!.data!.data.length + 1),
                 ),
                 const SizedBox(
                   height: 15.0,
@@ -227,17 +265,17 @@ class _ProductsScreenState extends State<ProductsScreen> {
             mainAxisSpacing: 15,
             childAspectRatio: 1 / 1.6,
             children: List.generate(
-                ShopCubit.get(context).categoryIndex==0
+                ShopCubit.get(context).categoryIndex == 0
                     ? homeModel.data!.products.length
                     : ShopCubit.get(context)
-                        .categories[ShopCubit.get(context).categoryIndex-1]
+                        .categories[ShopCubit.get(context).categoryIndex - 1]
                         .length, (index) {
               //changeImage(productDetailsModel!.data!.data[index].image);
               return buildGridProducts(
-                  ShopCubit.get(context).categoryIndex==0
+                  ShopCubit.get(context).categoryIndex == 0
                       ? homeModel.data!.products[index]
-                      : ShopCubit.get(context)
-                              .categories[ShopCubit.get(context).categoryIndex-1][index],
+                      : ShopCubit.get(context).categories[
+                          ShopCubit.get(context).categoryIndex - 1][index],
                   context,
                   index);
             }),
@@ -248,8 +286,8 @@ class _ProductsScreenState extends State<ProductsScreen> {
 
 Widget buildCategoryItem(BuildContext context, int index) {
   Color buttonColor = ShopCubit.get(context).categoryIndex == index
-      ? AppColors.containerColor : ShopCubit.get(context).categoryColor
-       ;
+      ? AppColors.containerColor
+      : ShopCubit.get(context).categoryColor;
   return SizedBox(
     width: 120,
     height: 30,
@@ -258,7 +296,6 @@ Widget buildCategoryItem(BuildContext context, int index) {
         onPressed: () {
           ShopCubit.get(context).categoryPressed(index);
         },
-          
         text: ShopCubit.get(context).getCategoryName(index),
         fontSize: 14,
         height: 30,
@@ -266,8 +303,7 @@ Widget buildCategoryItem(BuildContext context, int index) {
   );
 }
 
-Widget buildGridProducts(
-    ProductModel model, BuildContext context, index) {
+Widget buildGridProducts(ProductModel model, BuildContext context, index) {
   // String img =
   //     'https://student.valuxapps.com/storage/uploads/products/1615440689Oojt6.item_XXL_36330138_142814947.jpeg';
   // ShopCubit.get(context).removeBackgroud(img);
@@ -278,11 +314,10 @@ Widget buildGridProducts(
           context,
           ProductDetailsScreen(
             product_id: model.id,
-            
           ));
     },
     child: Container(
-      padding: EdgeInsets.symmetric(horizontal: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
           color: AppColors.containerColor),

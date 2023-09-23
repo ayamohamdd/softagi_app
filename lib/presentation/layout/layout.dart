@@ -68,7 +68,7 @@ class LayoutScreen extends StatelessWidget {
                     // ),
                     Icon(
                       Icons.settings,
-                      color: changeBottomIconColor(3),
+                      color: changeBottomIconColor(2),
                       size: 30,
                     ),
                   ]),

@@ -14,6 +14,8 @@ const CATRGORIES = 'categories';
 var PRODUCTS = 'products/';
 const FAVORITES = 'favorites';
 const PROFILE = 'profile';
+const CART = 'carts';
 
 
 String? token;
+String? emailAddress;

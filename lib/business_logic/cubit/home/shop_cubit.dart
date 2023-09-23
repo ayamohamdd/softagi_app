@@ -2,7 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:store_app/data/remote/dio_helper.dart';
+import 'package:store_app/presentation/models/cart_model.dart';
 import 'package:store_app/presentation/models/categories_model.dart';
+import 'package:store_app/presentation/models/change_cart_model.dart';
 import 'package:store_app/presentation/models/favorites_model.dart';
 import 'package:store_app/presentation/models/change_favorits_model.dart';
 import 'package:store_app/presentation/models/login_model.dart';
@@ -40,6 +42,7 @@ class ShopCubit extends Cubit<ShopStates> {
   //ProductDetailsData? productDetailsData;
 
   Map<int, bool?> favorites = {};
+  Map<int, bool?> cart = {};
 
   List<ProductModel> electrionicDeviceCategory = [];
   List<ProductModel> clothesCategory = [];
@@ -58,7 +61,8 @@ class ShopCubit extends Cubit<ShopStates> {
         favorites.addAll({
           element.id: element.inFavorites,
         });
-
+        cart.addAll({element.id: element.inCart});
+        //print(cart[55]);
         // productDetailsModel!.data!.data.forEach((element) {
         //   favorites.addAll({
         //     element.id: element.inFavorites,
@@ -98,6 +102,7 @@ class ShopCubit extends Cubit<ShopStates> {
       token: token,
     ).then((value) {
       productDetailsModel = ProductDetailsModel.fromJson(value.data);
+
       emit(ProductSuccessDataState());
     }).catchError((error) {
       print('error is: ');
@@ -211,6 +216,53 @@ class ShopCubit extends Cubit<ShopStates> {
     });
   }
 
+  CartModel? cartModel;
+  void getCartData() {
+    emit(ShopLoadingGetCartDataState());
+    DioHelper.getData(url: baseUrl + CART, token: token).then((value) {
+      cartModel = CartModel.fromJson(value.data);
+      printFullText(value.data.toString());
+      print(
+          'product  ${cartModel!.cartData!.cartItemData[0].productData!.name}');
+      if (cartModel?.cartData?.cartItemData.isNotEmpty == true) {
+        emit(ShopSuccessGetCartDataState());
+      } else {
+        emit(ShopEmptyCartDataState());
+      }
+    }).catchError((error) {
+      print('error in cart is ${error.toString()}');
+      emit(ShopErrorGetCartDataState());
+    });
+  }
+
+  // Change Cart
+  ChangeCartModel? changeCartModel;
+  void changeCart(int productId) {
+    cart[productId] = !cart[productId]!;
+    emit(ShopInitialChangeCartDataState());
+    DioHelper.postData(
+      url: baseUrl + CART,
+      data: {
+        'product_id': productId,
+      },
+      token: token,
+    ).then((value) {
+      changeCartModel = ChangeCartModel.fromJson(value.data);
+      if (changeCartModel?.status == false) {
+        cart[productId] = !cart[productId]!;
+      }
+      else {
+      getCartData();
+      emit(ShopLoadingGetCartDataState());
+      }
+      print(value.data);
+      emit(ShopSuccessChangeCartDataState(changeCartModel));
+    }).catchError((error) {
+      cart[productId] = !cart[productId]!;
+      print(error.toString());
+      emit(ShopErrorChangeCartDataState());
+    });
+  }
   // Profile
   // LoginModel? userModel;
   // void getUser() {

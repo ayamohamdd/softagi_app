@@ -223,7 +223,7 @@ class _FavouritsScreenState extends State<FavouritsScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                'EG ${model.product!.oldPrice.round()}',
+                                'EG ${model.product!.oldPrice}',
                                 style: const TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 15),
                               ),

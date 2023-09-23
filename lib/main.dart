@@ -6,7 +6,7 @@ import 'package:store_app/data/remote/dio_helper.dart';
 import 'package:store_app/presentation/screens/splash.dart';
 import 'package:store_app/shared/components/blocObserver.dart';
 
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   DioHelper.init();
   await CacheHelper.init();
@@ -24,10 +24,16 @@ class StoreApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-            create: (BuildContext context) => ShopCubit()..getHomeData()..getCategoriesData()..getFavoritesData()..getUser()..getProductDetailsData()),
-           
+            create: (BuildContext context) => ShopCubit()
+              ..getHomeData()
+              ..getCategoriesData()
+              ..getFavoritesData()
+              ..getUser()
+              ..getProductDetailsData()
+              ..getCartData()
+              ),
       ],
-      child:  MaterialApp(
+      child: MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           fontFamily: 'Poppins',

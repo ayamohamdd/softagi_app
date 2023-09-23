@@ -8,6 +8,7 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:store_app/business_logic/cubit/home/shop_cubit.dart';
 import 'package:store_app/business_logic/cubit/home/shop_states.dart';
 import 'package:store_app/presentation/models/product_details_model.dart';
+import 'package:store_app/presentation/screens/carts.dart';
 import 'package:store_app/shared/components/button.dart';
 import 'package:store_app/shared/components/navigate.dart';
 import 'package:store_app/shared/constants/strings.dart';
@@ -33,7 +34,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   void initState() {
     super.initState();
     ShopCubit.get(context).id = widget.product_id;
-    
+
     ShopCubit.get(context).getProductDetailsData();
   }
 
@@ -45,11 +46,16 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     return BlocConsumer<ShopCubit, ShopStates>(listener: (context, state) {
       // TODO: implement listener
     }, builder: (context, state) {
+      // ShopCubit.get(context).changeCart(55);
+      print(ShopCubit.get(context).changeCartModel);
       if (state is ProductLoadingDataState) {
         // Handle loading state, show a loading indicator or placeholder
         return const Scaffold(
             backgroundColor: AppColors.backgroundColor,
-            body: Center(child: CircularProgressIndicator(color: AppColors.buttonColor,)));
+            body: Center(
+                child: CircularProgressIndicator(
+              color: AppColors.buttonColor,
+            )));
       }
       ProductDetailsModel? productModel =
           ShopCubit.get(context).productDetailsModel;
@@ -67,9 +73,11 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 fit: BoxFit.contain,
               ))
           .toList();
-if (productModel.data!.images!.length == 1) {
+      if (productModel.data!.images!.length == 1) {
         existingImages.insert(0, additionalImage);
       }
+      print(ShopCubit.get(context).cart.length);
+
       return SafeArea(
         child: Scaffold(
           appBar: AppBar(
@@ -87,208 +95,210 @@ if (productModel.data!.images!.length == 1) {
                   )),
             ),
             actions: [
-              
               IconButton(
                 iconSize: 24,
                 padding: EdgeInsets.zero,
                 icon: Icon(
-                  ShopCubit.get(context).favorites[
-                              productModel.data!.id] ==
+                  ShopCubit.get(context).favorites[productModel.data!.id] ==
                           true
                       ? Icons.favorite
                       : Icons.favorite_border_outlined,
-                  color: ShopCubit.get(context).favorites[
-                              productModel.data!.id] ==
-                          true
-                      ? AppColors.errorColor
-                      : AppColors.iconColor,
+                  color:
+                      ShopCubit.get(context).favorites[productModel.data!.id] ==
+                              true
+                          ? AppColors.errorColor
+                          : AppColors.iconColor,
                 ),
                 onPressed: () {
-                  ShopCubit.get(context).changeFavorits(
-                      productModel.data!.id);
+                  ShopCubit.get(context).changeFavorits(productModel.data!.id);
                 },
               ),
               IconButton(
-                  onPressed: () {},
-                  icon: const Icon(
-                    Icons.shopping_cart,
-                    color: AppColors.fontColor,
+                  onPressed: () {
+                    ShopCubit.get(context).cart[productModel.data!.id]==true ?
+                    navigateTo(context, CartScreen()): ShopCubit.get(context).changeCart(productModel.data!.id);
+                  },
+                  icon:  Icon(
+                    ShopCubit.get(context).cart[productModel.data!.id]==true ?
+                    Icons.shopping_cart_checkout_sharp:
+                    Icons.shopping_cart_outlined,
+                    color: ShopCubit.get(context).cart[productModel.data!.id]==true ?AppColors.buttonColor: AppColors.fontColor,
                   )),
             ],
           ),
           backgroundColor: AppColors.backgroundColor,
           body: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    height: 300,
-                    decoration: const BoxDecoration(
-                        color: AppColors.containerColor,
-                        borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(29),
-                            bottomRight: Radius.circular(29))),
-                    child: Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Center(
-                        child: Stack(
-                          alignment: Alignment.bottomCenter,
-                          children: [
-                            Column(
-                              children: [
-                                Column(
-                                  children: [
-                                    CarouselSlider(
-                                        carouselController: carouselController,
-                                        items: existingImages,
-                                        options: CarouselOptions(
-                                            onPageChanged: (index, reason) {
-                                              setState(() {
-                                                activeIndex = index;
-                                                carouselController
-                                                    .jumpToPage(index);
-                                              });
-                                            },
-                                            height: 200.0,
-                                            initialPage: 0,
-                                            viewportFraction: 1.0,
-                                            scrollDirection: Axis.horizontal,
-                                            enableInfiniteScroll: false)),
-                                    const SizedBox(
-                                      height: 20,
-                                    ),
-                                    AnimatedSmoothIndicator(
-                                        onDotClicked: (index) =>
-                                            carouselController
-                                                .jumpToPage(index),
-                                        effect: const ExpandingDotsEffect(
-                                            activeDotColor:
-                                                AppColors.buttonColor,
-                                            dotColor: AppColors.elevColor,
-                                            dotWidth: 15,
-                                            dotHeight: 8,
-                                            spacing: 5,
-                                            expansionFactor: 2),
-                                        activeIndex: activeIndex,
-                                        count: existingImages.length),
-                                  ],
-                                ),
-                                const SizedBox(
-                                  height: 50,
-                                ),
-                              ],
-                            ),
-                            if (productModel.data!.discount != 0)
-                              Container(
-                                width: 80,
-                                decoration: BoxDecoration(
-                                    color: AppColors.errorColor,
-                                    borderRadius: BorderRadius.circular(29)),
-                                child: const Text(
-                                  'Discount',
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.containerColor),
-                                  textAlign: TextAlign.center,
-                                ),
-                              )
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 15.0, horizontal: 30),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          productModel.data!.name,
-                          style: const TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.w900),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        const Text(
-                          'Description:',
-                          style: TextStyle(
-                              fontSize: 14, fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                          productModel.data!.description,
-                          style: const TextStyle(
-                            fontSize: 13,
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 100.0,
-                        )
-                      ],
-                    ),
-                  )
-                ],
-              ),
-            ),
-            
-          
-          floatingActionButtonLocation:
-              FloatingActionButtonLocation.endContained,
-          floatingActionButton: Container(
-                height: 80,
-                padding: EdgeInsets.zero,
-                color: AppColors.backgroundColor,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 45.0, right: 15),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  height: 300,
+                  decoration: const BoxDecoration(
+                      color: AppColors.containerColor,
+                      borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(29),
+                          bottomRight: Radius.circular(29))),
+                  child: Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Center(
+                      child: Stack(
+                        alignment: Alignment.bottomCenter,
                         children: [
-                          const Text(
-                            'Price:',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 10),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
+                          Column(
                             children: [
-                              Text(
-                                '${productModel.data!.oldPrice}',
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 17),
+                              Column(
+                                children: [
+                                  CarouselSlider(
+                                      carouselController: carouselController,
+                                      items: existingImages,
+                                      options: CarouselOptions(
+                                          onPageChanged: (index, reason) {
+                                            setState(() {
+                                              activeIndex = index;
+                                              carouselController
+                                                  .jumpToPage(index);
+                                            });
+                                          },
+                                          height: 200.0,
+                                          initialPage: 0,
+                                          viewportFraction: 1.0,
+                                          scrollDirection: Axis.horizontal,
+                                          enableInfiniteScroll: false)),
+                                  const SizedBox(
+                                    height: 20,
+                                  ),
+                                  AnimatedSmoothIndicator(
+                                      onDotClicked: (index) =>
+                                          carouselController.jumpToPage(index),
+                                      effect: const ExpandingDotsEffect(
+                                          activeDotColor: AppColors.buttonColor,
+                                          dotColor: AppColors.elevColor,
+                                          dotWidth: 15,
+                                          dotHeight: 8,
+                                          spacing: 5,
+                                          expansionFactor: 2),
+                                      activeIndex: activeIndex,
+                                      count: existingImages.length),
+                                ],
                               ),
                               const SizedBox(
-                                width: 10,
+                                height: 50,
                               ),
-                              if (productModel.data!.discount != 0)
-                                Text(
-                                  '${productModel.data!.price}',
-                                  style: const TextStyle(
-                                      fontSize: 12,
-                                      decoration: TextDecoration.lineThrough),
-                                ),
                             ],
-                          )
+                          ),
+                          if (productModel.data!.discount != 0)
+                            Container(
+                              width: 80,
+                              decoration: BoxDecoration(
+                                  color: AppColors.errorColor,
+                                  borderRadius: BorderRadius.circular(29)),
+                              child: const Text(
+                                'Discount',
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.containerColor),
+                                textAlign: TextAlign.center,
+                              ),
+                            )
                         ],
                       ),
                     ),
-                    Expanded(
-                      child: defaultButton(
-                          onPressed: () {},
-                          text: 'Add To Cart',
-                          textColor: AppColors.containerColor,
-                          isUpperCase: false),
-                    )
-                  ],
-                )),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 15.0, horizontal: 30),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        productModel.data!.name,
+                        style: const TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.w900),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      const Text(
+                        'Description:',
+                        style: TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        productModel.data!.description,
+                        style: const TextStyle(
+                          fontSize: 13,
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 100.0,
+                      )
+                    ],
+                  ),
+                )
+              ],
+            ),
           ),
-        
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.endContained,
+          floatingActionButton: Container(
+              height: 80,
+              padding: EdgeInsets.zero,
+              color: AppColors.backgroundColor,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 45.0, right: 15),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Price:',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 10),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              '${productModel.data!.oldPrice}',
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 17),
+                            ),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            if (productModel.data!.discount != 0)
+                              Text(
+                                '${productModel.data!.price}',
+                                style: const TextStyle(
+                                    fontSize: 12,
+                                    decoration: TextDecoration.lineThrough),
+                              ),
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: defaultButton(
+                        onPressed: () {
+                          ShopCubit.get(context)
+                              .changeCart(productModel.data!.id);
+                          print(ShopCubit.get(context).cart.length);
+                        },
+                        text: ShopCubit.get(context).cart[productModel.data!.id]==true ? 'Remove From Cart ': 'Add To Cart',
+                        textColor: AppColors.containerColor,
+                        isUpperCase: false,
+                        ),
+                  )
+                ],
+              )),
+        ),
       );
     });
   }
