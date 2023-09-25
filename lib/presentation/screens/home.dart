@@ -7,9 +7,11 @@ import 'package:store_app/presentation/models/categories_model.dart';
 import 'package:store_app/presentation/models/product_model.dart';
 import 'package:store_app/presentation/screens/carts.dart';
 import 'package:store_app/presentation/screens/product_details.dart';
+import 'package:store_app/presentation/screens/search.dart';
 import 'package:store_app/shared/components/button.dart';
 import 'package:store_app/shared/components/form.dart';
 import 'package:store_app/shared/components/navigate.dart';
+import 'package:store_app/shared/components/progress_indicator.dart';
 import 'package:store_app/shared/components/toast.dart';
 import 'package:store_app/shared/constants/colors.dart';
 
@@ -54,9 +56,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                 child: Padding(
               padding: const EdgeInsets.all(18.0),
               child: ConditionalBuilder(
-                  fallback: (context) => const Center(
-                        child: CircularProgressIndicator(),
-                      ),
+                  fallback: (context) => defaultCircularProgressIndicator(),
                   condition: ShopCubit.get(context).userModel != null &&
                       ShopCubit.get(context).cartModel != null,
                   builder: (context) {
@@ -72,30 +72,31 @@ class _ProductsScreenState extends State<ProductsScreen> {
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text(
-                                    'Welcome, ',
-                                    style: TextStyle(
-                                      fontSize: 20.0,
-                                    ),
-                                  ),
                                   Row(
                                     children: [
-                                      Text(
-                                        ShopCubit.get(context)
-                                            .userModel!
-                                            .data!
-                                            .name,
-                                        style: const TextStyle(
-                                            fontSize: 20.0,
-                                            fontWeight: FontWeight.w800),
-                                      ),
                                       const Text(
-                                        ' in',
+                                        'Welcome, ',
                                         style: TextStyle(
                                           fontSize: 20.0,
                                         ),
                                       ),
+                                      Text(
+                                    ShopCubit.get(context)
+                                        .userModel!
+                                        .data!
+                                        .name.split(' ')[0],
+                                    style: const TextStyle(
+                                        fontSize: 20.0,
+                                        fontWeight: FontWeight.w800,),
+                                  ),
                                     ],
+                                  ),
+                                  
+                                  const Text(
+                                    ' in',
+                                    style: TextStyle(
+                                      fontSize: 20.0,
+                                    ),
                                   ),
                                   const Text(
                                     'SOFTAGI',
@@ -171,15 +172,32 @@ class _ProductsScreenState extends State<ProductsScreen> {
                             ],
                           ),
                         ),
-                        defaultFormField(
-                            controller: search,
-                            type: TextInputType.text,
-                            label: 'Search',
-                            formColor: AppColors.containerColor,
-                            prefix: Icons.search,
-                            suffix: Icons.clear,
-                            suffixColor: AppColors.iconColor,
-                            suffixPressed: () {}),
+                        InkWell(
+                          onTap: (() {
+                            showSearch(
+                                              context: context,
+                                              delegate: MySearch()
+                                          );
+                          }),
+                          child: Container(
+                            decoration: BoxDecoration(color: AppColors.containerColor,borderRadius: BorderRadius.circular(30)),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                IconButton(onPressed: (){
+                                  showSearch(
+                                              context: context,
+                                              delegate: MySearch()
+                                          );
+                                }, icon: Icon(Icons.search)),
+                                Text('Search Product',style: TextStyle(color: AppColors.fontColor,fontSize: 15,fontWeight: FontWeight.w500),),
+                                IconButton(onPressed: (){}, icon: Icon(Icons.close)),
+                        
+                              ],
+                            ),
+                          ),
+                        ),
                         const SizedBox(
                           height: 20.0,
                         ),
@@ -193,8 +211,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                                 //ShopCubit.get(context).productDetailsModel,
                                 ShopCubit.get(context).categoriesModel,
                                 context),
-                            fallback: (BuildContext context) => const Center(
-                                child: CircularProgressIndicator()))
+                            fallback: (BuildContext context) => defaultCircularProgressIndicator())
                       ],
                     );
                   }),
@@ -282,7 +299,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
           )
         ],
       );
-}
 
 Widget buildCategoryItem(BuildContext context, int index) {
   Color buttonColor = ShopCubit.get(context).categoryIndex == index
@@ -299,7 +315,7 @@ Widget buildCategoryItem(BuildContext context, int index) {
         text: ShopCubit.get(context).getCategoryName(index),
         fontSize: 14,
         height: 30,
-        isUpperCase: false),
+        isUpperCase: false,textColor: AppColors.fontColor),
   );
 }
 
@@ -435,4 +451,6 @@ Widget buildGridProducts(ProductModel model, BuildContext context, index) {
       ),
     ),
   );
+}
+
 }

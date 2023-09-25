@@ -8,7 +8,9 @@ import 'package:store_app/data/local/cache_helper.dart';
 import 'package:store_app/presentation/screens/auth/login.dart';
 import 'package:store_app/shared/components/button.dart';
 import 'package:store_app/shared/components/form.dart';
+import 'package:store_app/shared/components/progress_indicator.dart';
 import 'package:store_app/shared/constants/colors.dart';
+import 'package:store_app/shared/constants/temp.dart';
 
 import '../../../business_logic/cubit/auth/register/register_states.dart';
 import '../../../shared/components/navigate.dart';
@@ -34,11 +36,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool isPasswordNotVisible = true;
   bool isConfirmPasswordNotVisible = true;
 
-  final emailValid = RegExp(
-      r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
-  final passValid =
-      RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}');
-  final nameValid = RegExp(r'^[a-z A-Z]+$');
+  
   // End Form Variables
 
   @override
@@ -258,8 +256,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         }
                                       },
                                     ),
-                                    fallback: (context) => const Center(
-                                        child: CircularProgressIndicator()),
+                                    fallback: (context) => defaultCircularProgressIndicator()
                                   ),
                                   const SizedBox(
                                     height: 10.0,

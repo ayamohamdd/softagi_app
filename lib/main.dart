@@ -8,7 +8,7 @@ import 'package:store_app/shared/components/blocObserver.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  DioHelper.init();
+  //DioHelper.init();
   await CacheHelper.init();
   Bloc.observer = const SimpleBlocObserver();
 

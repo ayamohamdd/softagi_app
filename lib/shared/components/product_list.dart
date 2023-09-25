@@ -1,86 +1,20 @@
-import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:store_app/business_logic/cubit/home/shop_cubit.dart';
-import 'package:store_app/business_logic/cubit/home/shop_states.dart';
-import 'package:store_app/presentation/models/product_model.dart';
+import 'package:store_app/presentation/models/search_model.dart';
 import 'package:store_app/presentation/screens/product_details.dart';
 import 'package:store_app/shared/components/navigate.dart';
-import 'package:store_app/shared/components/progress_indicator.dart';
 import 'package:store_app/shared/constants/colors.dart';
 
-class CategoryDetailsScreen extends StatefulWidget {
-  final int index;
-  CategoryDetailsScreen({super.key, required this.index});
-
-  @override
-  State<CategoryDetailsScreen> createState() => _CategoryDetailsScreenState();
-}
-
-class _CategoryDetailsScreenState extends State<CategoryDetailsScreen> {
-  @override
-  Widget build(BuildContext context) {
-    return BlocConsumer<ShopCubit, ShopStates>(
-      listener: (context, state) {
-        // TODO: implement listener
-      },
-      builder: (context, state) {
-        print(ShopCubit.get(context).categories[widget.index][0]);
-        return Scaffold(
-          backgroundColor: AppColors.backgroundColor,
-          appBar: AppBar(
-            title:
-                Text(ShopCubit.get(context).getCategoryName(widget.index + 1)),
-            centerTitle: true,
-            titleTextStyle: const TextStyle(
-                color: AppColors.containerColor,
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-                fontFamily: 'Poppins'),
-            elevation: 0,
-            backgroundColor: AppColors.buttonColor,
-            actions: [
-              IconButton(
-                icon: const Icon(
-                  Icons.search,
-                  color: AppColors.iconColor,
-                  weight: 20,
-                ),
-                onPressed: () {},
-              ),
-            ],
-          ),
-          body: ConditionalBuilder(
-            condition: ShopCubit.get(context).categories[widget.index][0] != null,
-            builder: (context) => ListView.separated(
-              itemBuilder: (context, index) => buildFavoritesModel(
-                  ShopCubit.get(context).categories[widget.index][index]),
-              separatorBuilder: (context, index) => const SizedBox(
-                height: 5,
-              ),
-              itemCount: ShopCubit.get(context).categories[widget.index].length,
-            ),
-            fallback: (context) =>
-               defaultCircularProgressIndicator()
-          ),
-        );
-      },
-    );
-  }
-
-  Widget buildFavoritesModel(ProductModel model) => InkWell(
+Widget buildProductModel( model, context) => InkWell(
         onTap: () {
-          navigateTo(
-              context,
-              ProductDetailsScreen(
-                product_id: model.id,
-              ));
+          navigateTo(context,
+                            ProductDetailsScreen(product_id: model.id));
         },
         child: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-              boxShadow: const [
-                BoxShadow(color: AppColors.bluredColor, blurRadius: 5)
+              boxShadow: [
+                const BoxShadow(color: AppColors.bluredColor, blurRadius: 5)
               ],
               borderRadius: BorderRadius.circular(10),
               border:
@@ -122,12 +56,13 @@ class _CategoryDetailsScreenState extends State<CategoryDetailsScreen> {
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     TextButton(
                       onPressed: () {
-                        navigateTo(context,
-                            ProductDetailsScreen(product_id: model.id));
+                        // navigateTo(context,
+                        //     ProductDetailsScreen(product_id: model.id));
                       },
                       child: Text(
                         '${model.name}',
@@ -150,15 +85,15 @@ class _CategoryDetailsScreenState extends State<CategoryDetailsScreen> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                'EG ${model.oldPrice!.round()}',
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 15),
-                              ),
+                              // Text(
+                              //   'EG ${model.oldPrice}',
+                              //   style: const TextStyle(
+                              //       fontWeight: FontWeight.bold, fontSize: 15),
+                              // ),
                               if (model.discount != 0)
                                 Stack(
                                   children: [
-                                    Text('EG ${model.price!.round()}',
+                                    Text('EG ${model.price.round()}',
                                         style: const TextStyle(
                                             fontSize: 13,
                                             color: AppColors.bluredColor)),
@@ -178,28 +113,21 @@ class _CategoryDetailsScreenState extends State<CategoryDetailsScreen> {
                                   ],
                                 ),
                               CircleAvatar(
-                                backgroundColor: AppColors.containerColor,
-                                child: IconButton(
-                                  iconSize: 24,
-                                  padding: EdgeInsets.zero,
-                                  icon: Icon(
-                                    ShopCubit.get(context)
-                                                .favorites[model.id] ==
-                                            true
-                                        ? Icons.favorite
-                                        : Icons.favorite_border_outlined,
-                                    color: ShopCubit.get(context)
-                                                .favorites[model.id] ==
-                                            true
-                                        ? AppColors.errorColor
-                                        : AppColors.iconColor,
-                                  ),
-                                  onPressed: () {
-                                    ShopCubit.get(context)
-                                        .changeFavorits(model.id);
-                                  },
-                                ),
-                              ),
+                    backgroundColor: AppColors.containerColor,
+                    child: IconButton(
+                        iconSize: 24,
+                        padding: EdgeInsets.zero,
+                        icon: Icon(
+                          ShopCubit.get(context).favorites[model.id] == true
+                              ? Icons.favorite
+                              : Icons.favorite_border_outlined,
+                          color: ShopCubit.get(context).favorites[model.id] == true? AppColors.errorColor: AppColors.iconColor,
+                        ),
+                        onPressed: () {
+                          ShopCubit.get(context).changeFavorits(model.id);
+                        },
+                      ),
+                  ),
                             ],
                           ),
                         ),
@@ -212,4 +140,3 @@ class _CategoryDetailsScreenState extends State<CategoryDetailsScreen> {
           ),
         ),
       );
-}

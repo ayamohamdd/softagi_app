@@ -8,6 +8,7 @@ import 'package:store_app/presentation/layout/layout.dart';
 import 'package:store_app/presentation/screens/auth/register.dart';
 import 'package:store_app/shared/components/button.dart';
 import 'package:store_app/shared/components/form.dart';
+import 'package:store_app/shared/components/progress_indicator.dart';
 import 'package:store_app/shared/constants/colors.dart';
 
 import '../../../shared/components/navigate.dart';
@@ -192,8 +193,7 @@ class LoginScreen extends StatelessWidget {
                                         }
                                       },
                                     ),
-                                    fallback: (context) => const Center(
-                                        child: CircularProgressIndicator()),
+                                    fallback: (context) => defaultCircularProgressIndicator()
                                   ),
                                   const SizedBox(
                                     height: 10.0,

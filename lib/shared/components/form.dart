@@ -21,7 +21,7 @@ Widget defaultFormField({
   bool isClickable = true,
   double contentLeftPadding = 20,
   double contentRightPadding = 20,
-  Color formColor = AppColors.formColor,
+  Color formColor = AppColors.containerColor,
   Color suffixColor = AppColors.buttonColor,
 
 }) =>
@@ -48,7 +48,8 @@ Widget defaultFormField({
           borderRadius: BorderRadius.circular(50.0),
         ),
         hintText: label,
-        prefixIcon: Icon(prefix),
+        //labelText: label,
+        prefixIcon: Icon(prefix,color: AppColors.buttonColor,),
         suffixIcon: suffix != null
             ? IconButton(
                 onPressed: suffixPressed,

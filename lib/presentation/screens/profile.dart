@@ -10,6 +10,11 @@ import 'package:store_app/business_logic/cubit/home/shop_states.dart';
 import 'package:store_app/data/local/cache_helper.dart';
 import 'package:store_app/presentation/models/login_model.dart';
 import 'package:store_app/presentation/models/profile_model.dart';
+import 'package:store_app/presentation/screens/carts.dart';
+import 'package:store_app/presentation/screens/edit_profile.dart';
+import 'package:store_app/presentation/screens/explore.dart';
+import 'package:store_app/shared/components/navigate.dart';
+import 'package:store_app/shared/components/progress_indicator.dart';
 import 'package:store_app/shared/constants/colors.dart';
 import 'package:store_app/shared/constants/strings.dart';
 
@@ -24,57 +29,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
   // @override
   List<SettingsModel> settings = [
     SettingsModel(
-      icon: Icons.settings_outlined,
-      settingName: 'Settings',
-      // onTap: (context) {
-      //   navigateTo(context, const EditProfileScreen());
-      // }
-    ),
+        icon: Icons.settings_outlined,
+        settingName: 'Profile',
+        navigateWidget: EditProfileScreen()),
     SettingsModel(
-      icon: Icons.shopping_cart_checkout_outlined,
-      settingName: 'Cart',
-      // onTap: (context) {
-      //   navigateTo(context, const CartScreen());
-      // }
-    ),
+        icon: Icons.shopping_cart_checkout_outlined,
+        settingName: 'Cart',
+        navigateWidget: CartScreen()),
     SettingsModel(
-      icon: Icons.favorite_border_outlined,
-      settingName: 'Favorites',
-      // onTap: (context) {
-      //   navigateTo(context, const FavouritsScreen());
-      // }
-    ),
+        icon: Icons.favorite_border_outlined,
+        settingName: 'Favorites',
+        navigateWidget: FavouritsScreen()),
     SettingsModel(
-      icon: Icons.info_outline,
-      settingName: 'About Us',
-      // onTap: (context) {
-      //   navigateTo(context, const InfoScreen());
-      // }
-    ),
+        icon: Icons.info_outline,
+        settingName: 'About Us',
+        navigateWidget: EditProfileScreen()),
     SettingsModel(
       icon: Icons.logout_outlined,
       settingName: 'Logout',
-      // onTap: (context) {
-      //   ShopCubit.get(context).signOut(context);
-      // }
     ),
   ];
   File? image;
   String? imageUrl;
   final imagePicker = ImagePicker();
   Future uploadImage() async {
-      var pickedImage =
-          await imagePicker.pickImage(source: ImageSource.gallery);
-      if (pickedImage == null) {
-        return;
-      }
-      final imageTemporary = File(pickedImage.path);
-      setState(() {
-        image = imageTemporary;
-      });
-      await CacheHelper.sharedPreferences
-          .setString(emailAddress.toString(), image!.path);
-    
+    var pickedImage = await imagePicker.pickImage(source: ImageSource.gallery);
+    if (pickedImage == null) {
+      return;
+    }
+    final imageTemporary = File(pickedImage.path);
+    setState(() {
+      image = imageTemporary;
+    });
+    await CacheHelper.sharedPreferences
+        .setString(emailAddress.toString(), image!.path);
   }
 
   // @override
@@ -110,15 +98,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
         return SafeArea(
           child: ConditionalBuilder(
-            fallback: (context) => Center(
-              child: CircularProgressIndicator(),
-            ),
+            fallback: (context) => defaultCircularProgressIndicator(),
             condition: ShopCubit.get(context).userModel != null,
             builder: (context) => Scaffold(
               backgroundColor: AppColors.backgroundColor,
               body: Center(
                   child: ListView(children: [
-                Container(
+                SizedBox(
                   height: 195,
                   child: Stack(
                     alignment: AlignmentDirectional.bottomCenter,
@@ -204,10 +190,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5),
         child: InkWell(
           onTap: () {
-            if (index == settings.length - 1) {
-              ShopCubit.get(context).state;
-           //   ShopCubit.get(context).signOut(context);
-            }
+            print('press');
+            //   if (index == settings.length - 1) {
+            //     ShopCubit.get(context).state;
+            //  //   ShopCubit.get(context).signOut(context);
+            //   }
+                        navigateTo(context, model.navigateWidget);
+
           },
           child: Container(
             width: double.infinity,
@@ -223,7 +212,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     color: AppColors.buttonColor,
                   ),
                   TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        navigateTo(context, model.navigateWidget);
+                      },
                       child: Text(
                         model.settingName,
                         style: TextStyle(
@@ -236,6 +227,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   IconButton(
                       onPressed: () {
                         // navigateTo(context, widget);
+                                               navigateTo(context, model.navigateWidget);
+
                       },
                       icon: Icon(
                         index == settings.length - 1 ? model.icon : model.arrow,

@@ -10,6 +10,7 @@ import 'package:store_app/presentation/models/cart_model.dart';
 import 'package:store_app/presentation/screens/product_details.dart';
 import 'package:store_app/shared/components/button.dart';
 import 'package:store_app/shared/components/navigate.dart';
+import 'package:store_app/shared/components/progress_indicator.dart';
 import 'package:store_app/shared/constants/colors.dart';
 
 class CartScreen extends StatelessWidget {
@@ -27,6 +28,8 @@ class CartScreen extends StatelessWidget {
         //     .cartData!
         //     .cartItemData[0]
         //     .productData);
+        CartData? cartData = ShopCubit.get(context).cartModel!.cartData!;
+
         return Scaffold(
           appBar: AppBar(
             title: const Text('Cart'),
@@ -97,144 +100,141 @@ class CartScreen extends StatelessWidget {
                                 .cartItemData
                                 .isEmpty);
 
-                            return ListView.separated(
-                              scrollDirection: Axis.horizontal,
-                              // physics: const NeverScrollableScrollPhysics(),
-                              shrinkWrap: true,
-                              itemBuilder: (context, index) => buildCartModel(
-                                  context,
-                                  ShopCubit.get(context)
-                                      .cartModel!
-                                      .cartData!
-                                      .cartItemData[index]),
-
-                              separatorBuilder: (context, index) =>
-                                  const SizedBox(
-                                width: 10.0,
+                            return ConditionalBuilder(
+                                condition:
+                                    state is !ShopSuccessChangeCartDataState,
+                                fallback: (context) => defaultCircularProgressIndicator(),
+                              builder:(context)=> ListView.separated(
+                                scrollDirection: Axis.horizontal,
+                                physics: const BouncingScrollPhysics(),
+                                // physics: const NeverScrollableScrollPhysics(),
+                                shrinkWrap: true,
+                                itemBuilder: (context, index) =>
+                                  buildCartModel(context,
+                                      cartData.cartItemData[index], index),
+                              
+                            
+                                separatorBuilder: (context, index) =>
+                                    const SizedBox(
+                                  width: 10.0,
+                                ),
+                                itemCount: cartData.cartItemData.length,
                               ),
-                              itemCount: ShopCubit.get(context)
-                                  .cartModel!
-                                  .cartData!
-                                  .cartItemData
-                                  .length,
                             );
                           },
-                          fallback: (BuildContext context) => const Center(
-                            child: CircularProgressIndicator(
-                              backgroundColor: AppColors.buttonColor,
-                            ),
-                          ),
+                          fallback: (BuildContext context) => defaultCircularProgressIndicator()
                         ),
                       ),
                       const SizedBox(
                         height: 15,
                       ),
-                      Container(
-                        width: double.infinity,
-                        height: 200,
-                        decoration: BoxDecoration(
-                            color: AppColors.containerColor,
-                            borderRadius: BorderRadius.circular(15)),
-                        child: Padding(
-                          padding: const EdgeInsets.all(25.0),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Text(
-                                    'Sub Total: ',
-                                    style: TextStyle(
-                                        color: AppColors.fontColor,
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  Text(
-                                      'EG ${ShopCubit.get(context).cartModel!.cartData!.subTotal}',
-                                      style: const TextStyle(
-                                        color: AppColors.bluredColor,
-                                        fontSize: 18,
-                                      ))
-                                ],
-                              ),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              Container(
-                                width: double.infinity,
-                                height: 0.5,
-                                decoration: const BoxDecoration(
-                                    color: AppColors.elevColor),
-                              ),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              const Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    'Tax: ',
-                                    style: TextStyle(
-                                        color: AppColors.fontColor,
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  Text('EG 0.00',
+                      ConditionalBuilder(
+                        condition: state is! ShopLoadingUpdateCartDataState,
+                        fallback: (context) =>  defaultLinearProgressIndicator(),
+                        builder: (context) => Container(
+                          width: double.infinity,
+                          height: 200,
+                          decoration: BoxDecoration(
+                              color: AppColors.containerColor,
+                              borderRadius: BorderRadius.circular(15)),
+                          child: Padding(
+                            padding: const EdgeInsets.all(25.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text(
+                                      'Sub Total: ',
                                       style: TextStyle(
-                                        color: AppColors.bluredColor,
-                                        fontSize: 18,
-                                      ))
-                                ],
-                              ),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              Container(
-                                width: double.infinity,
-                                height: 0.5,
-                                decoration: const BoxDecoration(
-                                    color: AppColors.elevColor),
-                              ),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Text(
-                                    'Total: ',
-                                    style: TextStyle(
-                                        color: AppColors.fontColor,
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  Text(
-                                      'EG ${ShopCubit.get(context).cartModel!.cartData!.total}',
-                                      style: const TextStyle(
-                                        color: AppColors.bluredColor,
-                                        fontSize: 18,
-                                      ))
-                                ],
-                              ),
-                            ],
+                                          color: AppColors.fontColor,
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    Text('EG ${cartData.subTotal}',
+                                        style: const TextStyle(
+                                          color: AppColors.bluredColor,
+                                          fontSize: 18,
+                                        ))
+                                  ],
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                Container(
+                                  width: double.infinity,
+                                  height: 0.5,
+                                  decoration: const BoxDecoration(
+                                      color: AppColors.elevColor),
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                const Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      'Tax: ',
+                                      style: TextStyle(
+                                          color: AppColors.fontColor,
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    Text('EG 0.00',
+                                        style: TextStyle(
+                                          color: AppColors.bluredColor,
+                                          fontSize: 18,
+                                        ))
+                                  ],
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                Container(
+                                  width: double.infinity,
+                                  height: 0.5,
+                                  decoration: const BoxDecoration(
+                                      color: AppColors.elevColor),
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text(
+                                      'Total: ',
+                                      style: TextStyle(
+                                          color: AppColors.fontColor,
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    Text('EG ${cartData.total}',
+                                        style: const TextStyle(
+                                          color: AppColors.bluredColor,
+                                          fontSize: 18,
+                                        ))
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       )
                     ],
                   ),
                 ),
-          floatingActionButton:
-              ShopCubit.get(context).cartModel!.cartData!.cartItemData.isEmpty
-                  ? null
-                  : defaultButton(
-                      onPressed: () {},
-                      text: 'CheckOut',
-                      textColor: AppColors.containerColor,
-                      width: 300),
+          floatingActionButton: cartData.cartItemData.isEmpty
+              ? null
+              : defaultButton(
+                  onPressed: () {},
+                  text: 'CheckOut',
+                  textColor: AppColors.containerColor,
+                  width: 300),
           floatingActionButtonLocation:
               FloatingActionButtonLocation.centerFloat,
         );
@@ -242,7 +242,8 @@ class CartScreen extends StatelessWidget {
     );
   }
 
-  Widget buildCartModel(BuildContext context, CartItemData model) => Container(
+  Widget buildCartModel(BuildContext context, CartItemData model, int index) =>
+      Container(
         height: 180,
         width: 220,
         padding: const EdgeInsets.all(8),
@@ -345,14 +346,18 @@ class CartScreen extends StatelessWidget {
                                 icon: const Icon(Icons.remove,
                                     size: 15, color: AppColors.fontColor),
                                 onPressed: (() {
-                                  ShopCubit.get(context)
-                                      .changeCart(model.productData!.id!);
+                                  model.quantity == 1
+                                      ? ShopCubit.get(context)
+                                          .changeCart(model.productData!.id!)
+                                      : ShopCubit.get(context).updateCart(
+                                          quantity: --model.quantity,
+                                          id: model.id!);
                                 }),
                               )),
                           const SizedBox(
                             width: 10,
                           ),
-                          const Text('0'),
+                          Text('${model.quantity}'),
                           const SizedBox(
                             width: 10,
                           ),
@@ -366,7 +371,11 @@ class CartScreen extends StatelessWidget {
                                   size: 15,
                                   color: AppColors.fontColor,
                                 ),
-                                onPressed: (() {}),
+                                onPressed: (() {
+                                  ShopCubit.get(context).updateCart(
+                                      quantity: ++model.quantity,
+                                      id: model.id!);
+                                }),
                               )),
                         ],
                       ),

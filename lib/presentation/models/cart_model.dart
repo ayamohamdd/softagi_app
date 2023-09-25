@@ -25,7 +25,7 @@ class CartData {
 
 class CartItemData {
   int? id;
-  int? quantity;
+  int quantity=0;
   ProductData? productData;
   CartItemData.fromJson(Map<String, dynamic>? json) {
     id = json!["id"];

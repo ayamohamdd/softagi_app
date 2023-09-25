@@ -11,6 +11,7 @@ import 'package:store_app/presentation/models/product_details_model.dart';
 import 'package:store_app/presentation/screens/carts.dart';
 import 'package:store_app/shared/components/button.dart';
 import 'package:store_app/shared/components/navigate.dart';
+import 'package:store_app/shared/components/progress_indicator.dart';
 import 'package:store_app/shared/constants/strings.dart';
 
 import '../../shared/constants/colors.dart';
@@ -50,12 +51,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       print(ShopCubit.get(context).changeCartModel);
       if (state is ProductLoadingDataState) {
         // Handle loading state, show a loading indicator or placeholder
-        return const Scaffold(
+        return  Scaffold(
             backgroundColor: AppColors.backgroundColor,
-            body: Center(
-                child: CircularProgressIndicator(
-              color: AppColors.buttonColor,
-            )));
+            body: defaultCircularProgressIndicator());
       }
       ProductDetailsModel? productModel =
           ShopCubit.get(context).productDetailsModel;
@@ -115,14 +113,16 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               ),
               IconButton(
                   onPressed: () {
-                    ShopCubit.get(context).cart[productModel.data!.id]==true ?
-                    navigateTo(context, CartScreen()): ShopCubit.get(context).changeCart(productModel.data!.id);
+                    ShopCubit.get(context).changeCart(productModel.data!.id);
                   },
-                  icon:  Icon(
-                    ShopCubit.get(context).cart[productModel.data!.id]==true ?
-                    Icons.shopping_cart_checkout_sharp:
-                    Icons.shopping_cart_outlined,
-                    color: ShopCubit.get(context).cart[productModel.data!.id]==true ?AppColors.buttonColor: AppColors.fontColor,
+                  icon: Icon(
+                    ShopCubit.get(context).cart[productModel.data!.id] == true
+                        ? Icons.remove_shopping_cart
+                        : Icons.add_shopping_cart_outlined,
+                    color: ShopCubit.get(context).cart[productModel.data!.id] ==
+                            true
+                        ? AppColors.fontColor
+                        : AppColors.buttonColor,
                   )),
             ],
           ),
@@ -242,62 +242,79 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           ),
           floatingActionButtonLocation:
               FloatingActionButtonLocation.endContained,
-          floatingActionButton: Container(
-              height: 80,
-              padding: EdgeInsets.zero,
-              color: AppColors.backgroundColor,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 45.0, right: 15),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Price:',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 10),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
+          floatingActionButton: Stack(
+            // mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Container(
+                  height: 80,
+                  padding: EdgeInsets.zero,
+                  color: AppColors.backgroundColor,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 45.0, right: 15),
+                        child: Column(
                           mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              '${productModel.data!.oldPrice}',
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 17),
+                            const Text(
+                              'Price:',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 14),
                             ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            if (productModel.data!.discount != 0)
-                              Text(
-                                '${productModel.data!.price}',
-                                style: const TextStyle(
-                                    fontSize: 12,
-                                    decoration: TextDecoration.lineThrough),
-                              ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  '${productModel.data!.oldPrice}',
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 17),
+                                ),
+                                const SizedBox(
+                                  width: 10,
+                                ),
+                                if (productModel.data!.discount != 0)
+                                  Text(
+                                    '${productModel.data!.price}',
+                                    style: const TextStyle(
+                                        fontSize: 12,
+                                        decoration: TextDecoration.lineThrough),
+                                  ),
+                              ],
+                            )
                           ],
-                        )
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: defaultButton(
-                        onPressed: () {
-                          ShopCubit.get(context)
-                              .changeCart(productModel.data!.id);
-                          print(ShopCubit.get(context).cart.length);
-                        },
-                        text: ShopCubit.get(context).cart[productModel.data!.id]==true ? 'Remove From Cart ': 'Add To Cart',
-                        textColor: AppColors.containerColor,
-                        isUpperCase: false,
                         ),
-                  )
-                ],
-              )),
+                      ),
+                      Expanded(
+                        child: defaultButton(
+                          onPressed: () {
+                            ShopCubit.get(context)
+                                      .cart[productModel.data!.id] ==
+                                  true
+                              ? 
+                            navigateTo(context, CartScreen()): ShopCubit.get(context).changeCart(productModel.data!.id);
+                          },
+                          text: ShopCubit.get(context)
+                                      .cart[productModel.data!.id] ==
+                                  true
+                              ? 'Go To Cart '
+                              : 'Add To Cart',
+                          textColor: AppColors.containerColor,
+                          color: ShopCubit.get(context)
+                                      .cart[productModel.data!.id] ==
+                                  true
+                              ? AppColors.fontColor
+                              : AppColors.buttonColor,
+                          isUpperCase: false,
+                        ),
+                      )
+                    ],
+                  )),
+            ],
+          ),
         ),
       );
     });

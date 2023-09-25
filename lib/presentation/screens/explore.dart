@@ -9,6 +9,7 @@ import 'package:store_app/presentation/screens/category_details.dart';
 import 'package:store_app/presentation/screens/product_details.dart';
 import 'package:store_app/shared/components/button.dart';
 import 'package:store_app/shared/components/navigate.dart';
+import 'package:store_app/shared/components/progress_indicator.dart';
 import 'package:store_app/shared/constants/colors.dart';
 
 class FavouritsScreen extends StatefulWidget {
@@ -33,6 +34,7 @@ class _FavouritsScreenState extends State<FavouritsScreen> {
         // TODO: implement listener
       },
       builder: (context, state) {
+        
         return Scaffold(
           appBar: AppBar(
             title: Text('Softagi'.toUpperCase()),
@@ -44,16 +46,7 @@ class _FavouritsScreenState extends State<FavouritsScreen> {
                 fontFamily: 'Poppins'),
             elevation: 0,
             backgroundColor: AppColors.buttonColor,
-            actions: [
-              IconButton(
-                icon: const Icon(
-                  Icons.search,
-                  color: AppColors.iconColor,
-                  weight: 20,
-                ),
-                onPressed: () {},
-              ),
-            ],
+            
           ),
           backgroundColor: AppColors.backgroundColor,
           body: Padding(
@@ -128,9 +121,7 @@ class _FavouritsScreenState extends State<FavouritsScreen> {
                               .data!
                               .data!
                               .length: ShopCubit.get(context).categoriesModel!.data!.data.length),
-                      fallback: (BuildContext context) => const Center(
-                        child: CircularProgressIndicator(backgroundColor: AppColors.buttonColor,),
-                      ),
+                      fallback: (BuildContext context) => defaultCircularProgressIndicator()
                     ),
                   ),
                 ],

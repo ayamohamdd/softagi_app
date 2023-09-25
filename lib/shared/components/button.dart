@@ -14,7 +14,7 @@ Widget defaultButton({
   FontWeight fontWeight=FontWeight.bold,
   double fontSize=18.0,
   Color color=AppColors.buttonColor,
-  Color textColor=AppColors.fontColor,
+  Color textColor=AppColors.containerColor,
 
 })=> Container(
   width: width,
