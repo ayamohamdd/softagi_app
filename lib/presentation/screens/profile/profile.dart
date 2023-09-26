@@ -1,6 +1,8 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,9 +12,10 @@ import 'package:store_app/business_logic/cubit/home/shop_states.dart';
 import 'package:store_app/data/local/cache_helper.dart';
 import 'package:store_app/presentation/models/login_model.dart';
 import 'package:store_app/presentation/models/profile_model.dart';
-import 'package:store_app/presentation/screens/carts.dart';
-import 'package:store_app/presentation/screens/edit_profile.dart';
-import 'package:store_app/presentation/screens/explore.dart';
+import 'package:store_app/presentation/screens/auth/login.dart';
+import 'package:store_app/presentation/screens/home/carts.dart';
+import 'package:store_app/presentation/screens/profile/edit_profile.dart';
+import 'package:store_app/presentation/screens/explore/explore.dart';
 import 'package:store_app/shared/components/navigate.dart';
 import 'package:store_app/shared/components/progress_indicator.dart';
 import 'package:store_app/shared/constants/colors.dart';
@@ -49,51 +52,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
       settingName: 'Logout',
     ),
   ];
-  File? image;
-  String? imageUrl;
-  final imagePicker = ImagePicker();
-  Future uploadImage() async {
-    var pickedImage = await imagePicker.pickImage(source: ImageSource.gallery);
-    if (pickedImage == null) {
-      return;
-    }
-    final imageTemporary = File(pickedImage.path);
-    setState(() {
-      image = imageTemporary;
-    });
-    await CacheHelper.sharedPreferences
-        .setString(emailAddress.toString(), image!.path);
-  }
-
-  // @override
-  // void initState() {
-  //   if (CacheHelper.sharedPreferences.getString(emailAddress.toString()) ==
-  //       null) return;
-  //   print(emailAddress);
-  //   if (emailAddress != null) {
-  //     image = File(
-  //         CacheHelper.sharedPreferences.getString(emailAddress.toString())!);
-  //   }
-  //   super.initState();
-  // }
-  // void getImage() {
-  //   if (CacheHelper.sharedPreferences.getString(emailAddress.toString()) ==
-  //       null) return;
-  //   if (emailAddress != null) {
-  //     image = File(
-  //         CacheHelper.sharedPreferences.getString(emailAddress.toString())!);
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<ShopCubit, ShopStates>(
       listener: (context, state) {
+        if (state is ShopSuccessLogoutState) {
+          // print(state.signnoutModel!.message);
+          // if (state.signnoutModel!.status == true) {
+            CacheHelper.removeData(key: 'login');
+            token = null;
+            navigateAndFinish(context, LoginScreen());
+          //}
+        }
         // TODO: implement listener
       },
       builder: (context, state) {
         LoginModel? userModel = ShopCubit.get(context).userModel;
         print(userModel);
+        print(userModel!.data!.image);
         // ShopCubit.get(context).getImage();
 
         return SafeArea(
@@ -123,7 +100,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ),
                       ),
-                      (image == null)
+                      (userModel!.data!.image ==
+                                  'https://student.valuxapps.com/storage/assets/defaults/user.jpg' ||
+                              userModel.data!.image == null)
                           ? CircleAvatar(
                               radius: 58,
                               backgroundColor: AppColors.buttonColor,
@@ -131,7 +110,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 radius: 54,
                                 backgroundColor: AppColors.backgroundColor,
                                 child: IconButton(
-                                    onPressed: uploadImage,
+                                    onPressed: () {
+                                      navigateTo(context, EditProfileScreen());
+                                    },
                                     icon: const Icon(
                                       Icons.camera_alt,
                                       color: AppColors.buttonColor,
@@ -142,8 +123,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               radius: 54,
                               backgroundColor: AppColors.backgroundColor,
                               child: CircleAvatar(
-                                  radius: 50,
-                                  backgroundImage: FileImage(image!)),
+                                radius: 50,
+                                //backgroundImage: Cac(image!)
+                                child: ClipOval(
+                                    child: CachedNetworkImage(
+                                        width: 230,
+                                        height: 230,
+                                        fit: BoxFit.cover,
+                                        placeholder: (context, url) =>
+                                            defaultCircularProgressIndicator(),
+                                        errorWidget: (context, url, error) =>
+                                            Icon(Icons.error),
+                                        imageUrl: userModel.data!.image)),
+                              ),
                             )
                     ],
                   ),
@@ -186,17 +178,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget buildSettingMode(SettingsModel model, int index) => Padding(
+  Widget buildSettingMode(
+    SettingsModel model,
+    int index,
+  ) =>
+      Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5),
         child: InkWell(
           onTap: () {
             print('press');
-            //   if (index == settings.length - 1) {
-            //     ShopCubit.get(context).state;
-            //  //   ShopCubit.get(context).signOut(context);
-            //   }
-                        navigateTo(context, model.navigateWidget);
-
+            if (index == settings.length - 1) {
+              // navigateAndFinish(context, LoginScreen());
+              //ShopCubit.get(context).state;
+              ShopCubit.get(context).signOut(context);
+            }
+            //navigateTo(context, model.navigateWidget);
           },
           child: Container(
             width: double.infinity,
@@ -227,8 +223,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   IconButton(
                       onPressed: () {
                         // navigateTo(context, widget);
-                                               navigateTo(context, model.navigateWidget);
-
+                        navigateTo(context, model.navigateWidget);
                       },
                       icon: Icon(
                         index == settings.length - 1 ? model.icon : model.arrow,

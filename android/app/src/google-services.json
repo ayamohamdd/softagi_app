@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "619907654641",
+    "project_id": "softagiapp",
+    "storage_bucket": "softagiapp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:619907654641:android:ca48a4d007aba2a3d55a50",
+        "android_client_info": {
+          "package_name": "com.example.store_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCPpJ38morkZh3XnhofViGdhvM14wMaFoQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,4 +1,6 @@
 
+import 'package:store_app/presentation/models/login_model.dart';
+
 abstract class RegisterStates {}
 
 // Register Form States
@@ -7,7 +9,7 @@ class RegisterInitialState extends RegisterStates {}
 class RegisterLoadingState extends RegisterStates {}
 
 class RegisterSuccessState extends RegisterStates {
-  var loginModel;
+  LoginModel? loginModel;
   RegisterSuccessState(this.loginModel);
 }
 
@@ -17,5 +19,6 @@ class RegisterErrorState extends RegisterStates {
 }
 // Register Password Visibility
 class RegisterChangePasswordVisibilityState extends RegisterStates{}
+class RegisterChangeNewPasswordVisibilityState extends RegisterStates{}
 class RegisterChangeConfirmPasswordVisibilityState extends RegisterStates{}
 

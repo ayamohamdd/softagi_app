@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_indicator/carousel_indicator.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
@@ -8,13 +9,13 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:store_app/business_logic/cubit/home/shop_cubit.dart';
 import 'package:store_app/business_logic/cubit/home/shop_states.dart';
 import 'package:store_app/presentation/models/product_details_model.dart';
-import 'package:store_app/presentation/screens/carts.dart';
+import 'package:store_app/presentation/screens/home/carts.dart';
 import 'package:store_app/shared/components/button.dart';
 import 'package:store_app/shared/components/navigate.dart';
 import 'package:store_app/shared/components/progress_indicator.dart';
 import 'package:store_app/shared/constants/strings.dart';
 
-import '../../shared/constants/colors.dart';
+import '../../../shared/constants/colors.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
   final int product_id;
@@ -44,9 +45,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   @override
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<ShopCubit, ShopStates>(listener: (context, state) {
-      // TODO: implement listener
-    }, builder: (context, state) {
+    return BlocBuilder<ShopCubit, ShopStates>( builder: (context, state) {
       // ShopCubit.get(context).changeCart(55);
       print(ShopCubit.get(context).changeCartModel);
       if (state is ProductLoadingDataState) {
@@ -57,15 +56,15 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       }
       ProductDetailsModel? productModel =
           ShopCubit.get(context).productDetailsModel;
-      Widget additionalImage = Image(
-        image: NetworkImage(productModel!.data!.image),
+      Widget additionalImage = CachedNetworkImage(
+        imageUrl:productModel!.data!.image,
         width: 300,
         height: 300,
         fit: BoxFit.contain,
       );
       List<Widget> existingImages = productModel.data!.images!
-          .map((e) => Image(
-                image: NetworkImage(e),
+          .map((e) => CachedNetworkImage(
+                imageUrl: e,
                 width: 250,
                 height: 250,
                 fit: BoxFit.contain,

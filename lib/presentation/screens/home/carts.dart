@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +8,8 @@ import 'package:store_app/business_logic/cubit/home/shop_cubit.dart';
 import 'package:store_app/business_logic/cubit/home/shop_states.dart';
 import 'package:store_app/presentation/layout/layout.dart';
 import 'package:store_app/presentation/models/cart_model.dart';
-import 'package:store_app/presentation/screens/product_details.dart';
+import 'package:store_app/presentation/screens/explore/explore.dart';
+import 'package:store_app/presentation/screens/home/product_details.dart';
 import 'package:store_app/shared/components/button.dart';
 import 'package:store_app/shared/components/navigate.dart';
 import 'package:store_app/shared/components/progress_indicator.dart';
@@ -18,10 +20,7 @@ class CartScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<ShopCubit, ShopStates>(
-      listener: (context, state) {
-        // TODO: implement listener
-      },
+    return BlocBuilder<ShopCubit, ShopStates>(
       builder: (context, state) {
         // print(ShopCubit.get(context)
         //     .cartModel!
@@ -72,6 +71,7 @@ class CartScreen extends StatelessWidget {
                       ),
                       defaultButton(
                           onPressed: () {
+                            ShopCubit.get(context).currentIndex = 1;
                             navigateAndFinish(context, const LayoutScreen());
                           },
                           text: 'Add Items',
@@ -86,51 +86,51 @@ class CartScreen extends StatelessWidget {
                 )
               : Padding(
                   padding: const EdgeInsets.all(18.0),
-                  child: Column(
+                  child: ListView(
                     children: [
                       SizedBox(
                         width: double.infinity,
                         height: 320,
                         child: ConditionalBuilder(
-                          condition: ShopCubit.get(context).cartModel != null,
-                          builder: (context) {
-                            print(ShopCubit.get(context)
-                                .cartModel!
-                                .cartData!
-                                .cartItemData
-                                .isEmpty);
+                            condition: ShopCubit.get(context).cartModel != null,
+                            builder: (context) {
+                              print(ShopCubit.get(context)
+                                  .cartModel!
+                                  .cartData!
+                                  .cartItemData
+                                  .isEmpty);
 
-                            return ConditionalBuilder(
+                              return ConditionalBuilder(
                                 condition:
-                                    state is !ShopSuccessChangeCartDataState,
-                                fallback: (context) => defaultCircularProgressIndicator(),
-                              builder:(context)=> ListView.separated(
-                                scrollDirection: Axis.horizontal,
-                                physics: const BouncingScrollPhysics(),
-                                // physics: const NeverScrollableScrollPhysics(),
-                                shrinkWrap: true,
-                                itemBuilder: (context, index) =>
-                                  buildCartModel(context,
-                                      cartData.cartItemData[index], index),
-                              
-                            
-                                separatorBuilder: (context, index) =>
-                                    const SizedBox(
-                                  width: 10.0,
+                                    state is! ShopSuccessChangeCartDataState,
+                                fallback: (context) =>
+                                    defaultCircularProgressIndicator(),
+                                builder: (context) => ListView.separated(
+                                  scrollDirection: Axis.horizontal,
+                                  physics: const BouncingScrollPhysics(),
+                                  // physics: const NeverScrollableScrollPhysics(),
+                                  shrinkWrap: true,
+                                  itemBuilder: (context, index) =>
+                                      buildCartModel(context,
+                                          cartData.cartItemData[index], index),
+
+                                  separatorBuilder: (context, index) =>
+                                      const SizedBox(
+                                    width: 10.0,
+                                  ),
+                                  itemCount: cartData.cartItemData.length,
                                 ),
-                                itemCount: cartData.cartItemData.length,
-                              ),
-                            );
-                          },
-                          fallback: (BuildContext context) => defaultCircularProgressIndicator()
-                        ),
+                              );
+                            },
+                            fallback: (BuildContext context) =>
+                                defaultCircularProgressIndicator()),
                       ),
                       const SizedBox(
                         height: 15,
                       ),
                       ConditionalBuilder(
                         condition: state is! ShopLoadingUpdateCartDataState,
-                        fallback: (context) =>  defaultLinearProgressIndicator(),
+                        fallback: (context) => defaultLinearProgressIndicator(),
                         builder: (context) => Container(
                           width: double.infinity,
                           height: 200,
@@ -220,11 +220,19 @@ class CartScreen extends StatelessWidget {
                                         ))
                                   ],
                                 ),
+                                
                               ],
                             ),
                           ),
                         ),
-                      )
+                      ),
+                      TextButton(
+                                    onPressed: () {
+                                      ShopCubit.get(context).currentIndex = 1;
+                                      navigateTo(context, LayoutScreen());
+                                    },
+                                    child: Text('Add more items')),
+                                    SizedBox(height: 100,)
                     ],
                   ),
                 ),
@@ -271,11 +279,15 @@ class CartScreen extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 10),
-                      child: Image(
-                        image: NetworkImage(model.productData!.image),
+                      child: CachedNetworkImage(
+                        imageUrl: model.productData!.image,
                         width: 100,
                         height: 100,
                         fit: BoxFit.contain,
+                        placeholder: (context, url) =>
+                            defaultCircularProgressIndicator(),
+                        errorWidget: (context, url, error) =>
+                            const Icon(Icons.error),
                       ),
                     ),
                     if (model.productData!.discount != 0)

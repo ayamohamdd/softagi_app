@@ -1,10 +1,11 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:store_app/business_logic/cubit/home/shop_cubit.dart';
 import 'package:store_app/business_logic/cubit/home/shop_states.dart';
 import 'package:store_app/presentation/models/product_model.dart';
-import 'package:store_app/presentation/screens/product_details.dart';
+import 'package:store_app/presentation/screens/home/product_details.dart';
 import 'package:store_app/shared/components/navigate.dart';
 import 'package:store_app/shared/components/progress_indicator.dart';
 import 'package:store_app/shared/constants/colors.dart';
@@ -51,18 +52,18 @@ class _CategoryDetailsScreenState extends State<CategoryDetailsScreen> {
             ],
           ),
           body: ConditionalBuilder(
-            condition: ShopCubit.get(context).categories[widget.index][0] != null,
-            builder: (context) => ListView.separated(
-              itemBuilder: (context, index) => buildFavoritesModel(
-                  ShopCubit.get(context).categories[widget.index][index]),
-              separatorBuilder: (context, index) => const SizedBox(
-                height: 5,
-              ),
-              itemCount: ShopCubit.get(context).categories[widget.index].length,
-            ),
-            fallback: (context) =>
-               defaultCircularProgressIndicator()
-          ),
+              condition:
+                  ShopCubit.get(context).categories[widget.index][0] != null,
+              builder: (context) => ListView.separated(
+                    itemBuilder: (context, index) => buildFavoritesModel(
+                        ShopCubit.get(context).categories[widget.index][index]),
+                    separatorBuilder: (context, index) => const SizedBox(
+                      height: 5,
+                    ),
+                    itemCount:
+                        ShopCubit.get(context).categories[widget.index].length,
+                  ),
+              fallback: (context) => defaultCircularProgressIndicator()),
         );
       },
     );
@@ -95,11 +96,14 @@ class _CategoryDetailsScreenState extends State<CategoryDetailsScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 10, vertical: 10),
-                    child: Image(
-                      image: NetworkImage(model.image),
+                    child: CachedNetworkImage(
+                      imageUrl: model.image,
                       width: 100,
                       height: 100,
                       fit: BoxFit.contain,
+                      placeholder: (context, url) =>
+                          defaultCircularProgressIndicator(),
+                      errorWidget: (context, url, error) => const Icon(Icons.error),
                     ),
                   ),
                   if (model.discount != 0)

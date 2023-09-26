@@ -4,8 +4,8 @@ class ProductDetailsModel {
 
   ProductDetailsModel({this.status, this.data});
 
-  ProductDetailsModel.fromJson(Map<String, dynamic> json) {
-    status = json['status'];
+  ProductDetailsModel.fromJson(Map<String, dynamic>? json) {
+    status = json!['status'];
     data = ProductDetailsData.fromJson(json['data']);
   }
 }
@@ -22,8 +22,8 @@ class ProductDetailsData {
   bool? inCart;
   List<String>? images;
 
-  ProductDetailsData.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
+  ProductDetailsData.fromJson(Map<String, dynamic>? json) {
+    id = json!['id'];
     price = json['price'];
     oldPrice = json['old_price'];
     discount = json['discount'];

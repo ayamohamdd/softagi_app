@@ -16,9 +16,13 @@ var SEARCH = 'products/search';
 const FAVORITES = 'favorites';
 const PROFILE = 'profile';
 const UPDATEPROFILE = 'update-profile';
-
+const CHANGEPASSWORD = 'change-password';
 const CART = 'carts';
+const LOGOUT = 'logout';
+
 
 
 String? token;
 String? emailAddress;
+String? imageUrl;
+

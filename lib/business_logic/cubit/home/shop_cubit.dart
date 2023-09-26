@@ -1,10 +1,15 @@
+import 'dart:io';
+
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:store_app/data/local/cache_helper.dart';
 import 'package:store_app/data/remote/dio_helper.dart';
 import 'package:store_app/presentation/models/cart_model.dart';
 import 'package:store_app/presentation/models/categories_model.dart';
 import 'package:store_app/presentation/models/change_cart_model.dart';
+import 'package:store_app/presentation/models/change_password_model.dart';
 import 'package:store_app/presentation/models/favorites_model.dart';
 import 'package:store_app/presentation/models/change_favorits_model.dart';
 import 'package:store_app/presentation/models/login_model.dart';
@@ -12,19 +17,22 @@ import 'package:store_app/presentation/models/product_details_model.dart';
 import 'package:store_app/presentation/models/product_model.dart';
 import 'package:store_app/presentation/models/profile_model.dart';
 import 'package:store_app/presentation/models/search_model.dart';
-import 'package:store_app/presentation/screens/carts.dart';
-import 'package:store_app/presentation/screens/home.dart';
-import 'package:store_app/presentation/screens/profile.dart';
+import 'package:store_app/presentation/screens/auth/login.dart';
+import 'package:store_app/presentation/screens/home/carts.dart';
+import 'package:store_app/presentation/screens/home/home.dart';
+import 'package:store_app/presentation/screens/profile/profile.dart';
+import 'package:store_app/shared/components/navigate.dart';
 import 'package:store_app/shared/constants/colors.dart';
 import 'package:store_app/shared/constants/strings.dart';
 import 'package:store_app/shared/constants/temp.dart';
-import '../../../presentation/screens/explore.dart';
+import '../../../presentation/screens/explore/explore.dart';
 import 'shop_states.dart';
 
 class ShopCubit extends Cubit<ShopStates> {
   ShopCubit() : super(ShopInitialState());
 
   static ShopCubit get(context) => BlocProvider.of(context);
+
 
   int currentIndex = 0;
   Color? color;
@@ -42,7 +50,7 @@ class ShopCubit extends Cubit<ShopStates> {
 
   HomeModel? homeModel;
   ProductDetailsModel? productDetailsModel;
-  
+
   //ProductDetailsData? productDetailsData;
 
   Map<int, bool?> favorites = {};
@@ -55,10 +63,10 @@ class ShopCubit extends Cubit<ShopStates> {
   List<ProductModel> coronaCategory = [];
 
   List<List> categories = [];
-  //Home
-  void getHomeData() {
+  // Start Home
+  void getHomeData() async {
     emit(ShopLoadingDataState());
-    DioHelper.getData(url: baseUrl + HOME, token: token).then((value) {
+    await DioHelper.getData(url: baseUrl + HOME, token: token).then((value) {
       homeModel = HomeModel.fromJson(value.data);
       //productDetailsModel = ProductDetailsModel.fromJson(value.data);
       homeModel!.data!.products.forEach((element) {
@@ -111,58 +119,152 @@ class ShopCubit extends Cubit<ShopStates> {
     });
   }
 
-// Product Details
+  // Product Details
   dynamic id;
-  void getProductDetailsData() {
+  void getProductDetailsData() async {
+    if (id == null) return;
     emit(ProductLoadingDataState());
-    DioHelper.getData(
+    await DioHelper.getData(
       url: baseUrl + PRODUCTS + '$id',
       token: token,
     ).then((value) {
       productDetailsModel = ProductDetailsModel.fromJson(value.data);
-
       emit(ProductSuccessDataState());
     }).catchError((error) {
-      print('error is: ');
+      print('error in product details is: ');
       print(error.toString());
       emit(ProductErrorDataState());
     });
   }
 
   LoginModel? userModel;
-  void getUser() {
+  void getUser() async {
     emit(ShopLoadingGetProfileDataState());
-    DioHelper.getData(
+    await DioHelper.getData(
       url: baseUrl + PROFILE,
       token: token,
     ).then((value) {
       userModel = LoginModel.fromJson(value.data);
       print(userModel);
+      emailAddress = userModel!.data!.email;
+      final String userEmail = userModel!.data!.email;
+      final String fileName = 'profile_image.jpg';
+
+      final Reference storageReference = FirebaseStorage.instance
+          .ref()
+          .child('user_images/$userEmail/$fileName');
+
+      // Download the image
+      storageReference.getDownloadURL().then((url) {
+        print(url);
+        if (url !=
+            'https://student.valuxapps.com/storage/assets/defaults/user.jpg') {
+          userModel!.data!.image = url;
+        }
+      }).catchError((error) {
+        print('Error downloading image: $error');
+      });
+      //  getImage(userModel!.data!.email);
+      print(userModel);
       emit(ShopSuccessGetProfileDataState(userModel));
     }).catchError((error) {
-      print('error is: ');
+      print('error in get use is: ');
       print(error.toString());
       emit(ShopErrorGetProfileDataState());
     });
   }
 
-// Update Cart
-  void updateProfile({
-    String? name,
-    String? email,
-    String? phone,
+  Future<void> uploadImage({
+    required File image,
+    required String userEmail,
   }) async {
+    emit(ShopSuccessProfileImageUploadState());
+
+    try {
+      final Reference storageReference = FirebaseStorage.instance
+          .ref()
+          .child('user_images/$userEmail/profile_image.jpg');
+
+      UploadTask uploadTask = storageReference.putFile(image);
+
+      await uploadTask.whenComplete(() async {
+        final String imageURL = await storageReference.getDownloadURL();
+        updateUserProfile(imageURL);
+        // Image uploaded successfully
+        emit(ShopSuccessProfileImageUploadState());
+      });
+    } catch (e) {
+      // Handle errors
+      print(e.toString());
+      emit(ShopErrorProfileImageUploadState());
+    }
+  }
+
+  void updateUserProfile(String newImageURL) {
+    // Update the user's image URL in your user data
+    userModel!.data!.image = newImageURL;
+    emit(ShopSuccessGetProfileDataState(userModel));
+  }
+
+  // Get image
+  // void getImage(String emailAddress) {
+  //   emit(ShopLoadingGetImageDataState());
+  //   //getUser();
+  //   final String userEmail =  emailAddress;
+  //   final String fileName = 'profile_image.jpg';
+  //   if (userEmail != null) {
+  //     final Reference storageReference = FirebaseStorage.instance
+  //         .ref()
+  //         .child('user_images/$userEmail/$fileName');
+  //     // Download the image
+  //     storageReference.getDownloadURL().then((url) {
+  //       imageUrl = url;
+  //       emit(ShopSuccessGetImageDataState());
+  //     }).catchError((error) {
+  //       print('Error downloading image: $error');
+  //       emit(ShopErrorGetImageDataState());
+  //     });
+  //     // Trigger the image upload when the screen is first loaded
+  //     //uploadImage();
+  //   }
+  // }
+  // // End Home
+
+// Update Profile
+  void updateProfile(
+      {String? name, String? email, String? phone, String? image}) async {
     emit(ShopLoadingUpdateUserDataState());
-    await DioHelper.putData(
-        url: baseUrl + UPDATEPROFILE,
-        token: token,
-        data: {"name": name, "email": email, "phone": phone}).then((value) {
+    await DioHelper.putData(url: baseUrl + UPDATEPROFILE, token: token, data: {
+      "name": name,
+      "email": email,
+      "phone": phone,
+      "image": image
+    }).then((value) {
       print('value.data ${value.data}');
       getUser();
     }).catchError((error) {
       print('error in update profile is: ');
       print(error.toString());
       emit(ShopErrorUpdateUserDataState());
+    });
+  }
+
+  ChangePasswordModel? changePasswordModel;
+  // Change Password
+  void changePassword(String currentPassword, String newPassword) async {
+    emit(ShopLoadingChangePasswordState());
+    await DioHelper.postData(
+      url: baseUrl + CHANGEPASSWORD,
+      data: {'current_password': currentPassword, 'new_password': newPassword},
+      token: token,
+    ).then((value) {
+      changePasswordModel = ChangePasswordModel.fromJson(value.data);
+      print('Changes');
+      print(value.data);
+      emit(ShopSuccessChangePasswordState(changePasswordModel!));
+    }).catchError((error) {
+      print(error.toString());
+      emit(ShopErrorChangePasswordState());
     });
   }
 
@@ -197,9 +299,10 @@ class ShopCubit extends Cubit<ShopStates> {
   }
 
   CategoriesModel? categoriesModel;
-  void getCategoriesData() {
+  void getCategoriesData() async {
     emit(ShopLoadingDataState());
-    DioHelper.getData(url: baseUrl + CATRGORIES, token: token).then((value) {
+    await DioHelper.getData(url: baseUrl + CATRGORIES, token: token)
+        .then((value) {
       categoriesModel = CategoriesModel.fromJson(value.data);
       emit(ShopSuccessCategoriesDataState());
     }).catchError((error) {
@@ -210,10 +313,10 @@ class ShopCubit extends Cubit<ShopStates> {
 
   // Change Favorites
   ChangeFavoritsModel? changeFavoritsModel;
-  void changeFavorits(int productId) {
+  void changeFavorits(int productId) async {
     favorites[productId] = !favorites[productId]!;
     emit(ShopInitialChangeFavoritsDataState());
-    DioHelper.postData(
+    await DioHelper.postData(
       url: baseUrl + FAVORITES,
       data: {
         'product_id': productId,
@@ -239,9 +342,10 @@ class ShopCubit extends Cubit<ShopStates> {
 
   // Get Favorites
   FavoritesModel? favoritesModel;
-  void getFavoritesData() {
+  void getFavoritesData() async {
     emit(ShopLoadingGetFavoritsDataState());
-    DioHelper.getData(url: baseUrl + FAVORITES, token: token).then((value) {
+    await DioHelper.getData(url: baseUrl + FAVORITES, token: token)
+        .then((value) {
       favoritesModel = FavoritesModel.fromJson(value.data);
       printFullText(value.data.toString());
       emit(ShopSuccessGetFavoritsDataState());
@@ -313,7 +417,7 @@ class ShopCubit extends Cubit<ShopStates> {
       print('value.data ${value.data}');
       getCartData();
     }).catchError((error) {
-      print('error is: ');
+      print('error in update cart is: ');
       print(error.toString());
       emit(ShopErrorUpdateCartDataState());
     });
@@ -333,39 +437,38 @@ class ShopCubit extends Cubit<ShopStates> {
       emit(ShopErrorDeleteCartDataState());
     });
   }
-  // void updateUser({
-  //   required String name,
-  //   required String email,
-  //   required String phone,
-  //   required File image,
-  // }) {
-  //   emit(ShopLoadingGetProfileDataState());
-  //   DioHelper.putData(url: baseUrl + PROFILE, token: token, data: {
-  //     'name': name,
-  //     'email': email,
-  //     'phone': phone,
-  //     'image': image
-  //   }).then((value) {
-  //     userModel = LoginModel.fromJson(value.data);
-  //     print(userModel);
-  //     emit(ShopSuccessGetProfileDataState(userModel));
-  //   }).catchError((error) {
-  //     print('error is: ');
-  //     print(error.toString());
-  //     emit(ShopErrorGetProfileDataState());
-  //   });
-  // }
-  // Profile
-  // LoginModel? userModel;
-  // void getUser() {
-  //   emit(ShopLoadingGetProfileDataState());
-  //   DioHelper.getData(url: baseUrl + PROFILE, token: token).then((value) {
-  //     userModel = LoginModel.fromJson(value.data);
-  //     printFullText(value.data.name);
-  //     emit(ShopSuccessGetProfileDataState(userModel));
-  //   }).catchError((error) {
-  //     print(error.toString());
-  //     emit(ShopErrorGetProfileDataState());
-  //   });
-  // }
+
+  SignnoutModel? signoutModel;
+  void signOut(BuildContext context) async {
+    emit(ShopLoadingLogoutState());
+    await DioHelper.postData(
+            url: baseUrl + LOGOUT, data: {"fcm_token": token}, token: token)
+        .then((value) async {
+      print(value.data);
+      //print('token=$token');
+
+      //print('Done');
+      //  print(signoutModel!.message);
+      try {
+        signoutModel = SignnoutModel.fromJson(value.data);
+        emit(ShopSuccessLogoutState(signoutModel));
+        //disposeShopCubit(context);
+      } catch (e) {
+        print('Error parsing JSON: $e');
+      }
+
+      print(signoutModel!.message);
+    }).catchError((error) {
+      print('error');
+      print(error.toString());
+      emit(ShopErrorLogoutState());
+    });
+  }
+
+  void disposeShopCubit(BuildContext context) {
+    final shopCubit = context.read<ShopCubit>();
+    shopCubit.close();
+  }
+
+  
 }

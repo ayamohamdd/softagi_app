@@ -33,10 +33,14 @@ class RegisterCubit extends Cubit<RegisterStates> {
   }
   IconData suffix = Icons.visibility_off_outlined;
   IconData suffixConfirm = Icons.visibility_off_outlined;
+  IconData suffixNew = Icons.visibility_off_outlined;
+
 
 
   bool isPasswordNotVisible = true;
   bool isConfirmPasswordNotVisible = true;
+  bool isNewPasswordNotVisible = true;
+
 
   void changePasswordVisibility() {
     isPasswordNotVisible = !isPasswordNotVisible;
@@ -55,5 +59,14 @@ class RegisterCubit extends Cubit<RegisterStates> {
         : Icons.visibility_outlined;
 
     emit(RegisterChangeConfirmPasswordVisibilityState());
+  }
+  void changeNewPasswordVisibility() {
+    isNewPasswordNotVisible = !isNewPasswordNotVisible;
+
+    suffixNew = isNewPasswordNotVisible
+        ? Icons.visibility_off_outlined
+        : Icons.visibility_outlined;
+
+    emit(RegisterChangeNewPasswordVisibilityState());
   }
 }

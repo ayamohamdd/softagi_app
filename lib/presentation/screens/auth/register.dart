@@ -15,7 +15,7 @@ import 'package:store_app/shared/constants/temp.dart';
 import '../../../business_logic/cubit/auth/register/register_states.dart';
 import '../../../shared/components/navigate.dart';
 import '../../../shared/components/toast.dart';
-import '../home.dart';
+import '../home/home.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -36,7 +36,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool isPasswordNotVisible = true;
   bool isConfirmPasswordNotVisible = true;
 
-  
   // End Form Variables
 
   @override
@@ -46,15 +45,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
       child: BlocConsumer<RegisterCubit, RegisterStates>(
           listener: (BuildContext context, RegisterStates state) {
         if (state is RegisterSuccessState) {
-          if (state.loginModel.status) {
+          if (state.loginModel!.status!) {
             CacheHelper.saveData(
-                    key: 'login', value: state.loginModel.data.token)
-                .then((value) =>
-                    navigateAndFinish(context,  ProductsScreen()));
+                    key: 'login', value: state.loginModel!.data!.token)
+                .then((value) {
+              navigateAndFinish(context, ProductsScreen());
+            });
           } else {
             defaultToast(
               state: ToastState.ERROR,
-              message: state.loginModel.message,
+              message: state.loginModel!.message!,
             );
           }
         }
@@ -211,8 +211,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         RegisterCubit.get(context)
                                             .changeConfirmPasswordVisibility();
                                       },
-                                      suffix:RegisterCubit.get(context).suffixConfirm,
-                                      isPassword: RegisterCubit.get(context).isConfirmPasswordNotVisible,
+                                      suffix: RegisterCubit.get(context)
+                                          .suffixConfirm,
+                                      isPassword: RegisterCubit.get(context)
+                                          .isConfirmPasswordNotVisible,
                                       validate: (String? value) {
                                         if (value!.isEmpty) {
                                           return "Password mustn't be null";
@@ -239,25 +241,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     height: 20.0,
                                   ),
                                   ConditionalBuilder(
-                                    condition: state is! RegisterLoadingState,
-                                    builder: (context) => defaultButton(
-                                      text: 'Register',
-                                      radius: 15.0,
-                                      width: 300,
-                                      onPressed: () {
-                                        if (_formKey.currentState!.validate()) {
-                                          print('Success');
-                                          RegisterCubit.get(context)
-                                              .userRegister(
-                                                  name: name.text,
-                                                  email: email.text,
-                                                  password: password.text,
-                                                  phone: phone.text);
-                                        }
-                                      },
-                                    ),
-                                    fallback: (context) => defaultCircularProgressIndicator()
-                                  ),
+                                      condition: state is! RegisterLoadingState,
+                                      builder: (context) => defaultButton(
+                                            text: 'Register',
+                                            radius: 15.0,
+                                            width: 300,
+                                            onPressed: () {
+                                              if (_formKey.currentState!
+                                                  .validate()) {
+                                                print('Success');
+                                                RegisterCubit.get(context)
+                                                    .userRegister(
+                                                        name: name.text,
+                                                        email: email.text,
+                                                        password: password.text,
+                                                        phone: phone.text);
+                                              }
+                                            },
+                                          ),
+                                      fallback: (context) =>
+                                          defaultCircularProgressIndicator()),
                                   const SizedBox(
                                     height: 10.0,
                                   ),

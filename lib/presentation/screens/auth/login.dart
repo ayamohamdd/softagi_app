@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:store_app/business_logic/cubit/auth/login/login_cubit.dart';
 import 'package:store_app/business_logic/cubit/auth/login/login_states.dart';
+import 'package:store_app/business_logic/cubit/home/shop_cubit.dart';
 import 'package:store_app/data/local/cache_helper.dart';
 import 'package:store_app/presentation/layout/layout.dart';
 import 'package:store_app/presentation/screens/auth/register.dart';
@@ -10,6 +11,7 @@ import 'package:store_app/shared/components/button.dart';
 import 'package:store_app/shared/components/form.dart';
 import 'package:store_app/shared/components/progress_indicator.dart';
 import 'package:store_app/shared/constants/colors.dart';
+import 'package:store_app/shared/constants/strings.dart';
 
 import '../../../shared/components/navigate.dart';
 import '../../../shared/components/toast.dart';
@@ -39,16 +41,17 @@ class LoginScreen extends StatelessWidget {
       child: BlocConsumer<LoginCubit, LoginStates>(
         listener: (BuildContext context, LoginStates state) {
           if (state is LoginSuccessState) {
-            if (state.loginModel.status) {
+            if (state.loginModel!.status!) {
               CacheHelper.saveData(
-                      key: 'login', value: state.loginModel.data.token)
-                  .then((value) => navigateAndFinish(
-                      context,
-                       const LayoutScreen()));
+                      key: 'login', value: state.loginModel!.data!.token)
+                  .then((value) {
+                navigateAndFinish(context, const LayoutScreen());
+                token = state.loginModel!.data!.token;
+              });
             } else {
               defaultToast(
                 state: ToastState.ERROR,
-                message: state.loginModel.message,
+                message: state.loginModel!.message!,
               );
             }
           }
@@ -180,21 +183,24 @@ class LoginScreen extends StatelessWidget {
                                     ),
                                   ),
                                   ConditionalBuilder(
-                                    condition: state is! LoginLoadingState,
-                                    builder: (context) => defaultButton(
-                                      text: 'Login',
-                                      radius: 15.0,
-                                      width: 300,
-                                      onPressed: () {
-                                        if (_formKey.currentState!.validate()) {
-                                          LoginCubit.get(context).userLogin(
-                                              email: email.text,
-                                              password: password.text);
-                                        }
-                                      },
-                                    ),
-                                    fallback: (context) => defaultCircularProgressIndicator()
-                                  ),
+                                      condition: state is! LoginLoadingState,
+                                      builder: (context) => defaultButton(
+                                            text: 'Login',
+                                            radius: 15.0,
+                                            width: 300,
+                                            onPressed: () {
+                                              if (_formKey.currentState!
+                                                  .validate()) {
+                                                LoginCubit.get(context)
+                                                    .userLogin(
+                                                        email: email.text,
+                                                        password:
+                                                            password.text);
+                                              }
+                                            },
+                                          ),
+                                      fallback: (context) =>
+                                          defaultCircularProgressIndicator()),
                                   const SizedBox(
                                     height: 10.0,
                                   ),
@@ -225,10 +231,8 @@ class LoginScreen extends StatelessWidget {
                                       const Text("Don't have an account?"),
                                       TextButton(
                                           onPressed: () {
-                                            navigateAndFinish(
-                                                context,
-                                                const RegisterScreen()
-                                                );
+                                            navigateAndFinish(context,
+                                                const RegisterScreen());
                                           },
                                           child: Transform.translate(
                                             offset: const Offset(-5, 0),

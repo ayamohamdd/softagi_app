@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -5,8 +6,8 @@ import 'package:store_app/business_logic/cubit/home/shop_cubit.dart';
 import 'package:store_app/business_logic/cubit/home/shop_states.dart';
 import 'package:store_app/presentation/models/categories_model.dart';
 import 'package:store_app/presentation/models/favorites_model.dart';
-import 'package:store_app/presentation/screens/category_details.dart';
-import 'package:store_app/presentation/screens/product_details.dart';
+import 'package:store_app/presentation/screens/explore/category_details.dart';
+import 'package:store_app/presentation/screens/home/product_details.dart';
 import 'package:store_app/shared/components/button.dart';
 import 'package:store_app/shared/components/navigate.dart';
 import 'package:store_app/shared/components/progress_indicator.dart';
@@ -34,7 +35,8 @@ class _FavouritsScreenState extends State<FavouritsScreen> {
         // TODO: implement listener
       },
       builder: (context, state) {
-        
+        //ShopCubit.get(context).getCategoriesData();
+        print(ShopCubit.get(context).categoriesModel);
         return Scaffold(
           appBar: AppBar(
             title: Text('Softagi'.toUpperCase()),
@@ -46,7 +48,6 @@ class _FavouritsScreenState extends State<FavouritsScreen> {
                 fontFamily: 'Poppins'),
             elevation: 0,
             backgroundColor: AppColors.buttonColor,
-            
           ),
           backgroundColor: AppColors.backgroundColor,
           body: Padding(
@@ -96,33 +97,46 @@ class _FavouritsScreenState extends State<FavouritsScreen> {
                               ? AppColors.containerColor
                               : AppColors.fontColor,
                         ),
-                        
                       ],
                     ),
                   ),
                   const SizedBox(height: 10),
                   SizedBox(
                     child: ConditionalBuilder(
-                      condition: state is !ShopLoadingGetFavoritsDataState,
-                      builder: (context) => ListView.separated(
-                          physics: const NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
-                          itemBuilder: (context, index) => inFav == true
-                              ? buildFavoritesModel(ShopCubit.get(context)
-                                  .favoritesModel!
-                                  .data!
-                                  .data![index])
-                              : buildCategoryModel(ShopCubit.get(context).categoriesModel!.data!.data[index],index),
-                          separatorBuilder: (context, index) => const SizedBox(
-                                height: 10.0,
-                              ),
-                          itemCount: inFav==true? ShopCubit.get(context)
-                              .favoritesModel!
-                              .data!
-                              .data!
-                              .length: ShopCubit.get(context).categoriesModel!.data!.data.length),
-                      fallback: (BuildContext context) => defaultCircularProgressIndicator()
-                    ),
+                        condition:
+                            ShopCubit.get(context).favoritesModel != null &&
+                                ShopCubit.get(context).categoriesModel != null,
+                        builder: (context) => ListView.separated(
+                            physics: const NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                            itemBuilder: (context, index) => inFav == true
+                                ? buildFavoritesModel(ShopCubit.get(context)
+                                    .favoritesModel!
+                                    .data!
+                                    .data![index])
+                                : buildCategoryModel(
+                                    ShopCubit.get(context)
+                                        .categoriesModel!
+                                        .data!
+                                        .data[index],
+                                    index),
+                            separatorBuilder: (context, index) =>
+                                const SizedBox(
+                                  height: 10.0,
+                                ),
+                            itemCount: inFav == true
+                                ? ShopCubit.get(context)
+                                    .favoritesModel!
+                                    .data!
+                                    .data!
+                                    .length
+                                : ShopCubit.get(context)
+                                    .categoriesModel!
+                                    .data!
+                                    .data
+                                    .length),
+                        fallback: (BuildContext context) =>
+                            defaultCircularProgressIndicator()),
                   ),
                 ],
               ),
@@ -135,8 +149,7 @@ class _FavouritsScreenState extends State<FavouritsScreen> {
 
   Widget buildFavoritesModel(FavoritesData model) => InkWell(
         onTap: () {
-          navigateTo(context,
-                            ProductDetailsScreen(product_id: model.id));
+          navigateTo(context, ProductDetailsScreen(product_id: model.id));
         },
         child: Container(
           padding: const EdgeInsets.all(8),
@@ -157,8 +170,12 @@ class _FavouritsScreenState extends State<FavouritsScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 10, vertical: 10),
-                    child: Image(
-                      image: NetworkImage(model.product!.image),
+                    child: CachedNetworkImage(
+                      imageUrl: model.product!.image,
+                      placeholder: (context, url) =>
+                          defaultCircularProgressIndicator(),
+                      errorWidget: (context, url, error) =>
+                          const Icon(Icons.error),
                       width: 100,
                       height: 100,
                       fit: BoxFit.contain,
@@ -184,7 +201,6 @@ class _FavouritsScreenState extends State<FavouritsScreen> {
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     TextButton(
@@ -241,21 +257,28 @@ class _FavouritsScreenState extends State<FavouritsScreen> {
                                   ],
                                 ),
                               CircleAvatar(
-                    backgroundColor: AppColors.containerColor,
-                    child: IconButton(
-                        iconSize: 24,
-                        padding: EdgeInsets.zero,
-                        icon: Icon(
-                          ShopCubit.get(context).favorites[model.product!.id] == true
-                              ? Icons.favorite
-                              : Icons.favorite_border_outlined,
-                          color: ShopCubit.get(context).favorites[model.product!.id] == true? AppColors.errorColor: AppColors.iconColor,
-                        ),
-                        onPressed: () {
-                          ShopCubit.get(context).changeFavorits(model.product!.id);
-                        },
-                      ),
-                  ),
+                                backgroundColor: AppColors.containerColor,
+                                child: IconButton(
+                                  iconSize: 24,
+                                  padding: EdgeInsets.zero,
+                                  icon: Icon(
+                                    ShopCubit.get(context)
+                                                .favorites[model.product!.id] ==
+                                            true
+                                        ? Icons.favorite
+                                        : Icons.favorite_border_outlined,
+                                    color: ShopCubit.get(context)
+                                                .favorites[model.product!.id] ==
+                                            true
+                                        ? AppColors.errorColor
+                                        : AppColors.iconColor,
+                                  ),
+                                  onPressed: () {
+                                    ShopCubit.get(context)
+                                        .changeFavorits(model.product!.id);
+                                  },
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -269,7 +292,7 @@ class _FavouritsScreenState extends State<FavouritsScreen> {
         ),
       );
 
-Widget buildCategoryModel(DataModel model,int index) => Container(
+  Widget buildCategoryModel(DataModel model, int index) => Container(
         width: double.infinity,
         height: 120,
         decoration: const BoxDecoration(color: AppColors.containerColor),
@@ -277,11 +300,16 @@ Widget buildCategoryModel(DataModel model,int index) => Container(
           padding: const EdgeInsets.all(10.0),
           child:
               Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Image(
-              image: NetworkImage(model.image),
+            CachedNetworkImage(
+              imageUrl: model.image,
               height: 120.0,
               width: 120.0,
               fit: BoxFit.cover,
+              placeholder: (context, url) => defaultCircularProgressIndicator(),
+              errorWidget: (context, url, error) {
+                print('error in cat image : ');
+                return const Icon(Icons.error);
+              },
             ),
             const SizedBox(
               width: 20.0,
@@ -299,9 +327,11 @@ Widget buildCategoryModel(DataModel model,int index) => Container(
             IconButton(
                 onPressed: () {
                   navigateTo(
-                      context,
-                      CategoryDetailsScreen(index: index,),
-                    );
+                    context,
+                    CategoryDetailsScreen(
+                      index: index,
+                    ),
+                  );
                 },
                 icon: const Icon(
                   Icons.arrow_forward_ios,

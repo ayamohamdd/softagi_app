@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:store_app/business_logic/cubit/home/shop_cubit.dart';
 import 'package:store_app/business_logic/cubit/home/shop_states.dart';
 import 'package:store_app/presentation/models/search_model.dart';
-import 'package:store_app/presentation/screens/product_details.dart';
+import 'package:store_app/presentation/screens/home/product_details.dart';
 import 'package:store_app/shared/components/navigate.dart';
 import 'package:store_app/shared/components/product_list.dart';
 import 'package:store_app/shared/components/progress_indicator.dart';
