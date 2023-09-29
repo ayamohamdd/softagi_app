@@ -12,7 +12,9 @@ import 'package:store_app/shared/constants/colors.dart';
 
 class CategoryDetailsScreen extends StatefulWidget {
   final int index;
-  CategoryDetailsScreen({super.key, required this.index});
+  final int id;
+
+  CategoryDetailsScreen({super.key, required this.index, required this.id});
 
   @override
   State<CategoryDetailsScreen> createState() => _CategoryDetailsScreenState();
@@ -26,12 +28,25 @@ class _CategoryDetailsScreenState extends State<CategoryDetailsScreen> {
         // TODO: implement listener
       },
       builder: (context, state) {
-        print(ShopCubit.get(context).categories[widget.index][0]);
+        //print(ShopCubit.get(context).categories[widget.index][0]);
         return Scaffold(
           backgroundColor: AppColors.backgroundColor,
           appBar: AppBar(
-            title:
-                Text(ShopCubit.get(context).getCategoryName(widget.index + 1)),
+            title: Text(
+              ShopCubit.get(context)
+                      .categoriesModel!
+                      .data!
+                      .data[widget.index]
+                      .name[0]
+                      .toUpperCase() +
+                  ShopCubit.get(context)
+                      .categoriesModel!
+                      .data!
+                      .data[widget.index]
+                      .name
+                      .substring(1)
+                      .toLowerCase(),
+            ),
             centerTitle: true,
             titleTextStyle: const TextStyle(
                 color: AppColors.containerColor,
@@ -51,25 +66,33 @@ class _CategoryDetailsScreenState extends State<CategoryDetailsScreen> {
               ),
             ],
           ),
-          body: ConditionalBuilder(
-              condition:
-                  ShopCubit.get(context).categories[widget.index][0] != null,
-              builder: (context) => ListView.separated(
-                    itemBuilder: (context, index) => buildFavoritesModel(
-                        ShopCubit.get(context).categories[widget.index][index]),
-                    separatorBuilder: (context, index) => const SizedBox(
-                      height: 5,
-                    ),
-                    itemCount:
-                        ShopCubit.get(context).categories[widget.index].length,
-                  ),
-              fallback: (context) => defaultCircularProgressIndicator()),
+          body: state is! ShopSuccessCategoriesDetailsDataState
+              ? defaultCircularProgressIndicator()
+              : ConditionalBuilder(
+                  condition:
+                      ShopCubit.get(context).categoriesDetailsModel != null,
+                  builder: (context) => ListView.separated(
+                        itemBuilder: (context, index) => buildFavoritesModel(
+                            ShopCubit.get(context)
+                                .categoriesDetailsModel!
+                                .data!
+                                .data![index]),
+                        separatorBuilder: (context, index) => const SizedBox(
+                          height: 5,
+                        ),
+                        itemCount: ShopCubit.get(context)
+                            .categoriesDetailsModel!
+                            .data!
+                            .data!
+                            .length,
+                      ),
+                  fallback: (context) => defaultCircularProgressIndicator()),
         );
       },
     );
   }
 
-  Widget buildFavoritesModel(ProductModel model) => InkWell(
+  Widget buildFavoritesModel(model) => InkWell(
         onTap: () {
           navigateTo(
               context,
@@ -103,7 +126,8 @@ class _CategoryDetailsScreenState extends State<CategoryDetailsScreen> {
                       fit: BoxFit.contain,
                       placeholder: (context, url) =>
                           defaultCircularProgressIndicator(),
-                      errorWidget: (context, url, error) => const Icon(Icons.error),
+                      errorWidget: (context, url, error) =>
+                          const Icon(Icons.error),
                     ),
                   ),
                   if (model.discount != 0)
@@ -181,29 +205,6 @@ class _CategoryDetailsScreenState extends State<CategoryDetailsScreen> {
                                         )),
                                   ],
                                 ),
-                              CircleAvatar(
-                                backgroundColor: AppColors.containerColor,
-                                child: IconButton(
-                                  iconSize: 24,
-                                  padding: EdgeInsets.zero,
-                                  icon: Icon(
-                                    ShopCubit.get(context)
-                                                .favorites[model.id] ==
-                                            true
-                                        ? Icons.favorite
-                                        : Icons.favorite_border_outlined,
-                                    color: ShopCubit.get(context)
-                                                .favorites[model.id] ==
-                                            true
-                                        ? AppColors.errorColor
-                                        : AppColors.iconColor,
-                                  ),
-                                  onPressed: () {
-                                    ShopCubit.get(context)
-                                        .changeFavorits(model.id);
-                                  },
-                                ),
-                              ),
                             ],
                           ),
                         ),

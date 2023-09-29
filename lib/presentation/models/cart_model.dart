@@ -39,8 +39,8 @@ class ProductData {
   dynamic price;
   dynamic oldPrice;
   dynamic discount;
-  String image = '';
-  String name = '';
+  String? image;
+  String? name ;
   String description = '';
   List<String> images = [];
   bool? inFavorites;

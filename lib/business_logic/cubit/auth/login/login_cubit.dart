@@ -9,7 +9,7 @@ class LoginCubit extends Cubit<LoginStates> {
   LoginCubit() : super(LoginInitialState());
 
   static LoginCubit get(context) => BlocProvider.of(context);
-
+  LoginModel? loginModel;
   void userLogin({
     required String email,
     required String password,
@@ -20,9 +20,10 @@ class LoginCubit extends Cubit<LoginStates> {
       'password': password,
     }).then((value) {
       print(value.data);
-      var loginModel = LoginModel.fromJson(value.data);
+      loginModel = LoginModel.fromJson(value.data);
       emit(LoginSuccessState(loginModel));
     }).catchError((error) {
+      print(error.toString());
       emit(LoginErrorState(error: error.toString()));
     });
   }
@@ -39,5 +40,10 @@ class LoginCubit extends Cubit<LoginStates> {
         : Icons.visibility_outlined;
 
     emit(LoginChangePasswordVisibilityState());
+  }
+
+  void updateToke(String token) {
+  loginModel!.data!.token=token;
+    emit(LoginUpdateToke());
   }
 }

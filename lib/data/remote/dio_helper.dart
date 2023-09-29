@@ -2,26 +2,26 @@ import 'package:dio/dio.dart';
 import 'package:store_app/shared/constants/strings.dart';
 
 class DioHelper {
-  static final Dio? dio=Dio(BaseOptions(
-        baseUrl: baseUrl,
-        receiveDataWhenStatusError: true,
-        ));
+  static final Dio? dio = Dio(BaseOptions(
+    baseUrl: baseUrl,
+    receiveDataWhenStatusError: true,
+  ));
 
-   static Future<Response> getData({
+  static Future<Response> getData({
     required String url,
     Map<String, dynamic>? query,
     String lang = 'en',
     String? token,
   }) async {
     dio!.options = BaseOptions(headers: {
-      'Content_Type':'application/json',
+      'Content_Type': 'application/json',
       "lang": lang,
-      "Authorization": token??'',
+      "Authorization": token ?? '',
     });
     return await dio!.get(url, queryParameters: query);
   }
 
-   static Future<Response> postData({
+  static Future<Response> postData({
     required String url,
     Map<String, dynamic>? query,
     required Map<String, dynamic> data,
@@ -29,9 +29,9 @@ class DioHelper {
     String? token,
   }) async {
     dio!.options = BaseOptions(headers: {
-      'Content_Type':'application/json',
+      'Content_Type': 'application/json',
       "lang": lang,
-      "Authorization": token??'',
+      "Authorization": token ?? '',
     });
     return await dio!.post(
       url,
@@ -39,6 +39,7 @@ class DioHelper {
       data: data,
     );
   }
+
   static Future<Response> putData({
     required String url,
     Map<String, dynamic>? query,
@@ -47,9 +48,9 @@ class DioHelper {
     String? token,
   }) async {
     dio!.options = BaseOptions(headers: {
-      'Content_Type':'application/json',
+      'Content_Type': 'application/json',
       "lang": lang,
-      "Authorization": token??'',
+      "Authorization": token ?? '',
     });
     return await dio!.put(
       url,
@@ -58,16 +59,16 @@ class DioHelper {
     );
   }
 
-   static Future<Response> deleteData({
+  static Future<Response> deleteData({
     required String url,
     Map<String, dynamic>? query,
     String lang = 'en',
     String? token,
   }) async {
     dio!.options = BaseOptions(headers: {
-      'Content_Type':'application/json',
+      'Content_Type': 'application/json',
       "lang": lang,
-      "Authorization": token??'',
+      "Authorization": token ?? '',
     });
     return await dio!.delete(
       url,

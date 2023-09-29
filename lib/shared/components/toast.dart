@@ -23,7 +23,7 @@ Color chooseToastColor(ToastState state) {
   Color? color;
   switch (state) {
     case ToastState.SUCCESS:
-      color = AppColors.backgroundColor;
+      color = AppColors.successColor;
       break;
     case ToastState.ERROR:
       color = AppColors.errorColor;

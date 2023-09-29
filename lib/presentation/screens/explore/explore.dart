@@ -30,13 +30,11 @@ class _FavouritsScreenState extends State<FavouritsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<ShopCubit, ShopStates>(
-      listener: (context, state) {
-        // TODO: implement listener
-      },
+    return BlocBuilder<ShopCubit, ShopStates>(
       builder: (context, state) {
-        //ShopCubit.get(context).getCategoriesData();
+        //  ShopCubit.get(context).getCategoriesData();
         print(ShopCubit.get(context).categoriesModel);
+        //  print(ShopCubit.get(context).userModel!.data!.token);
         return Scaffold(
           appBar: AppBar(
             title: Text('Softagi'.toUpperCase()),
@@ -326,10 +324,21 @@ class _FavouritsScreenState extends State<FavouritsScreen> {
             ),
             IconButton(
                 onPressed: () {
+                  ShopCubit.get(context).getCategoriesDetailsData(
+                      ShopCubit.get(context)
+                          .categoriesModel!
+                          .data!
+                          .data[index]
+                          .id!);
                   navigateTo(
                     context,
                     CategoryDetailsScreen(
                       index: index,
+                     id: ShopCubit.get(context)
+                          .categoriesModel!
+                          .data!
+                          .data[index]
+                          .id!
                     ),
                   );
                 },

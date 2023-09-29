@@ -22,5 +22,6 @@ class LoginErrorState extends LoginStates {
   LoginErrorState({this.error});
 }
 
+class LoginUpdateToke extends LoginStates{}
 // Login Password Visibility
 class LoginChangePasswordVisibilityState extends LoginStates {}

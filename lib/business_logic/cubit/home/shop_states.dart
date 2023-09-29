@@ -8,6 +8,7 @@ abstract class ShopStates {}
 
 class ShopInitialState extends ShopStates {}
 
+
 class ShopLoadingState extends ShopStates {}
 class ShopSuccessState extends ShopStates {}
 class ShopErrorState extends ShopStates {}
@@ -42,6 +43,14 @@ class ShopRemoveBgErrorState extends ShopStates {}
 class ShopSuccessCategoriesDataState extends ShopStates {}
 
 class ShopErrorCategoriesDataState extends ShopStates {}
+
+
+// Categories
+class ShopLoadingCategoriesDetailsDataState extends ShopStates {}
+
+class ShopSuccessCategoriesDetailsDataState extends ShopStates {}
+
+class ShopErrorCategoriesDetailsDataState extends ShopStates {}
 
 // change Favorits in home
 class ShopInitialChangeFavoritsDataState extends ShopStates {}

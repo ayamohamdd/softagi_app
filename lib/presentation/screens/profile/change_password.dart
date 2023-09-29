@@ -10,7 +10,7 @@ import 'package:store_app/shared/components/form.dart';
 import 'package:store_app/shared/components/navigate.dart';
 import 'package:store_app/shared/components/toast.dart';
 import 'package:store_app/shared/constants/colors.dart';
-import 'package:store_app/shared/constants/temp.dart';
+import 'package:store_app/shared/constants/var.dart';
 
 class ChangePasswordScreen extends StatelessWidget {
   ChangePasswordScreen({super.key});

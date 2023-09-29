@@ -25,22 +25,21 @@ class RegisterCubit extends Cubit<RegisterStates> {
       'phone': phone,
     }).then((value) {
       print(value.data);
-      var loginModel = LoginModel.fromJson(value.data);
+      LoginModel? loginModel = LoginModel.fromJson(value.data);
       emit(RegisterSuccessState(loginModel));
     }).catchError((error) {
+      print(error.toString());
       emit(RegisterErrorState(error: error.toString()));
     });
   }
+
   IconData suffix = Icons.visibility_off_outlined;
   IconData suffixConfirm = Icons.visibility_off_outlined;
   IconData suffixNew = Icons.visibility_off_outlined;
 
-
-
   bool isPasswordNotVisible = true;
   bool isConfirmPasswordNotVisible = true;
   bool isNewPasswordNotVisible = true;
-
 
   void changePasswordVisibility() {
     isPasswordNotVisible = !isPasswordNotVisible;
@@ -51,6 +50,7 @@ class RegisterCubit extends Cubit<RegisterStates> {
 
     emit(RegisterChangePasswordVisibilityState());
   }
+
   void changeConfirmPasswordVisibility() {
     isConfirmPasswordNotVisible = !isConfirmPasswordNotVisible;
 
@@ -60,6 +60,7 @@ class RegisterCubit extends Cubit<RegisterStates> {
 
     emit(RegisterChangeConfirmPasswordVisibilityState());
   }
+
   void changeNewPasswordVisibility() {
     isNewPasswordNotVisible = !isNewPasswordNotVisible;
 

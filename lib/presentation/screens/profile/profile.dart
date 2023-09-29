@@ -55,142 +55,139 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<ShopCubit, ShopStates>(
-      listener: (context, state) {
-        if (state is ShopSuccessLogoutState) {
-          // print(state.signnoutModel!.message);
-          // if (state.signnoutModel!.status == true) {
-            CacheHelper.removeData(key: 'login');
-            token = null;
-            navigateAndFinish(context, LoginScreen());
-          //}
-        }
-        // TODO: implement listener
-      },
-      builder: (context, state) {
-        LoginModel? userModel = ShopCubit.get(context).userModel;
-        print(userModel);
-        print(userModel!.data!.image);
-        // ShopCubit.get(context).getImage();
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: AppColors.backgroundColor,
+        body: RefreshIndicator(
+          onRefresh: () {
+            return ShopCubit.get(context).getUser();
+          },
+          child: BlocBuilder<ShopCubit, ShopStates>(
+            builder: (context, state) {
+              //print(token);
+              LoginModel? userModel = ShopCubit.get(context).userModel;
+              // print(userModel!.data!.token);
+              // print(userModel!.data!.image);
 
-        return SafeArea(
-          child: ConditionalBuilder(
-            fallback: (context) => defaultCircularProgressIndicator(),
-            condition: ShopCubit.get(context).userModel != null,
-            builder: (context) => Scaffold(
-              backgroundColor: AppColors.backgroundColor,
-              body: Center(
-                  child: ListView(children: [
-                SizedBox(
-                  height: 195,
-                  child: Stack(
-                    alignment: AlignmentDirectional.bottomCenter,
-                    children: [
-                      Align(
-                        alignment: AlignmentDirectional.topCenter,
-                        child: Container(
-                          padding: EdgeInsets.zero,
-                          height: 170,
-                          width: double.infinity,
-                          decoration: const BoxDecoration(
-                            color: AppColors.buttonColor,
-                            borderRadius: BorderRadius.only(
-                                bottomLeft: Radius.circular(40),
-                                bottomRight: Radius.circular(40)),
+              return ConditionalBuilder(
+                fallback: (context) => defaultCircularProgressIndicator(),
+                condition: ShopCubit.get(context).userModel != null &&
+                    ShopCubit.get(context).userModel!.data!.token != null,
+                builder: (context) => Center(
+                    child: ListView(children: [
+                  SizedBox(
+                    height: 195,
+                    child: Stack(
+                      alignment: AlignmentDirectional.bottomCenter,
+                      children: [
+                        Align(
+                          alignment: AlignmentDirectional.topCenter,
+                          child: Container(
+                            padding: EdgeInsets.zero,
+                            height: 170,
+                            width: double.infinity,
+                            decoration: const BoxDecoration(
+                              color: AppColors.buttonColor,
+                              borderRadius: BorderRadius.only(
+                                  bottomLeft: Radius.circular(40),
+                                  bottomRight: Radius.circular(40)),
+                            ),
                           ),
                         ),
-                      ),
-                      (userModel!.data!.image ==
-                                  'https://student.valuxapps.com/storage/assets/defaults/user.jpg' ||
-                              userModel.data!.image == null)
-                          ? CircleAvatar(
-                              radius: 58,
-                              backgroundColor: AppColors.buttonColor,
-                              child: CircleAvatar(
+                        (userModel!.data!.image ==
+                                    'https://student.valuxapps.com/storage/assets/defaults/user.jpg' ||
+                                userModel.data!.image == null)
+                            ? CircleAvatar(
+                                radius: 58,
+                                backgroundColor: AppColors.buttonColor,
+                                child: CircleAvatar(
+                                  radius: 54,
+                                  backgroundColor: AppColors.backgroundColor,
+                                  child: IconButton(
+                                      onPressed: () {
+                                        navigateTo(
+                                            context, EditProfileScreen());
+                                      },
+                                      icon: const Icon(
+                                        Icons.camera_alt,
+                                        color: AppColors.buttonColor,
+                                        size: 35,
+                                      )),
+                                ))
+                            : CircleAvatar(
                                 radius: 54,
                                 backgroundColor: AppColors.backgroundColor,
-                                child: IconButton(
-                                    onPressed: () {
-                                      navigateTo(context, EditProfileScreen());
-                                    },
-                                    icon: const Icon(
-                                      Icons.camera_alt,
-                                      color: AppColors.buttonColor,
-                                      size: 35,
-                                    )),
-                              ))
-                          : CircleAvatar(
-                              radius: 54,
-                              backgroundColor: AppColors.backgroundColor,
-                              child: CircleAvatar(
-                                radius: 50,
-                                //backgroundImage: Cac(image!)
-                                child: ClipOval(
-                                    child: CachedNetworkImage(
-                                        width: 230,
-                                        height: 230,
-                                        fit: BoxFit.cover,
-                                        placeholder: (context, url) =>
-                                            defaultCircularProgressIndicator(),
-                                        errorWidget: (context, url, error) =>
-                                            Icon(Icons.error),
-                                        imageUrl: userModel.data!.image)),
-                              ),
-                            )
-                    ],
+                                child: CircleAvatar(
+                                  radius: 50,
+                                  //backgroundImage: Cac(image!)
+                                  child: ClipOval(
+                                      child: CachedNetworkImage(
+                                          width: 230,
+                                          height: 230,
+                                          fit: BoxFit.cover,
+                                          placeholder: (context, url) =>
+                                              defaultCircularProgressIndicator(),
+                                          errorWidget: (context, url, error) =>
+                                              Icon(Icons.error),
+                                          imageUrl: userModel.data!.image)),
+                                ),
+                              )
+                      ],
+                    ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(18.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      const SizedBox(
-                        height: 5,
-                      ),
-                      Text(
-                        userModel!.data!.name,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 19),
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      ListView.separated(
-                        physics: const NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        itemBuilder: (context, index) =>
-                            buildSettingMode(settings[index], index),
-                        separatorBuilder: (BuildContext context, int index) =>
-                            const SizedBox(
+                  Padding(
+                    padding: const EdgeInsets.all(18.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        const SizedBox(
                           height: 5,
                         ),
-                        itemCount: settings.length,
-                      )
-                    ],
+                        Text(
+                          userModel!.data!.name,
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 19),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        ListView.separated(
+                          physics: const NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemBuilder: (context, index) =>
+                              buildSettingMode(settings[index], index, context),
+                          separatorBuilder: (BuildContext context, int index) =>
+                              const SizedBox(
+                            height: 5,
+                          ),
+                          itemCount: settings.length,
+                        )
+                      ],
+                    ),
                   ),
-                ),
-              ])),
-            ),
+                ])),
+              );
+            },
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
   Widget buildSettingMode(
-    SettingsModel model,
-    int index,
-  ) =>
+          SettingsModel model, int index, BuildContext context) =>
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5),
         child: InkWell(
           onTap: () {
             print('press');
             if (index == settings.length - 1) {
-              // navigateAndFinish(context, LoginScreen());
               //ShopCubit.get(context).state;
               ShopCubit.get(context).signOut(context);
+
+              //navigateAndFinish(context, LoginScreen());
+
+              //final shopCubit = context.read<ShopCubit>();
             }
             //navigateTo(context, model.navigateWidget);
           },

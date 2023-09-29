@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:store_app/business_logic/cubit/home/shop_cubit.dart';
@@ -12,7 +11,6 @@ import 'package:store_app/presentation/screens/profile/edit_profile.dart';
 import 'package:store_app/presentation/screens/home/product_details.dart';
 import 'package:store_app/presentation/screens/home/search.dart';
 import 'package:store_app/shared/components/button.dart';
-import 'package:store_app/shared/components/form.dart';
 import 'package:store_app/shared/components/navigate.dart';
 import 'package:store_app/shared/components/progress_indicator.dart';
 import 'package:store_app/shared/components/toast.dart';
@@ -34,72 +32,35 @@ class _ProductsScreenState extends State<ProductsScreen> {
   bool isCategoryPressed = false;
   int categoryIndex = 0;
   @override
-
-  // void changeImage(String imagePath) async{
-  //   image = await RemoveBackgroud.removeBg(imagePath);
-  //     ShopCubit.get(context).state;
-  // }
-  @override
-  // void initState() {
-  //   super.initState();
-
-  //   // Use the user's email address to construct the Firebase Storage reference
-  //   final String userEmail = emailAddress!;
-  //   final String fileName = 'profile_image.jpg';
-  //   if(userEmail!=null){
-
-  //   final Reference storageReference = FirebaseStorage.instance
-  //       .ref()
-  //       .child('user_images/$userEmail/$fileName');
-
-  //   // Download the image
-  //   storageReference.getDownloadURL().then((url) {
-  //     setState(() {
-  //       imageUrl = url;
-  //     });
-  //   }).catchError((error) {
-  //     print('Error downloading image: $error');
-  //   });
-  //   // Trigger the image upload when the screen is first loaded
-  //   //uploadImage();
-  //   }
-  // }
-  String? imageUrl;
-  void getImage() {
-    final String userEmail = emailAddress!;
-    final String fileName = 'profile_image.jpg';
-    if (userEmail != null) {
-      final Reference storageReference = FirebaseStorage.instance
-          .ref()
-          .child('user_images/$userEmail/$fileName');
-
-      // Download the image
-      storageReference.getDownloadURL().then((url) {
-        setState(() {
-          imageUrl = url;
-        });
-      }).catchError((error) {
-        print('Error downloading image: $error');
-      });
-      // Trigger the image upload when the screen is first loaded
-      //uploadImage();
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<ShopCubit, ShopStates>(
-      listener: (context, state) {
-        if (state is ShopSuccessChangeFavoritsDataState) {
-          if (state.model!.status == false) {
-            defaultToast(
-                message: state.model!.message, state: ToastState.ERROR);
-          }
+    return BlocConsumer<ShopCubit, ShopStates>(listener: (context, state) {
+      if (state is ShopSuccessChangeFavoritsDataState) {
+        if (state.model!.status == false) {
+          defaultToast(message: state.model!.message, state: ToastState.ERROR);
+        } else {
+          defaultToast(
+              message: state.model!.message, state: ToastState.SUCCESS);
         }
-      },
-      builder: (context, state) {
-        //print(imageUrl);
+      }
+    }, builder: (context, state) {
+      if (state is ShopLoadingGetProfileDataState ||
+          (state is ShopLoadingGetCartDataState) ||
+          state is ShopLoadingDataState ||
+          state is ShopLoadingGetFavoritsDataState) {
         return Scaffold(
+          backgroundColor: AppColors.backgroundColor,
+          body: defaultCircularProgressIndicator(),
+        );
+      }
+
+      print(token);
+      //print(imageUrl);
+      return RefreshIndicator(
+        onRefresh: () {
+          return ShopCubit.get(context).getHomeData();
+        },
+        child: Scaffold(
           backgroundColor: AppColors.backgroundColor,
           body: SafeArea(
             child: SingleChildScrollView(
@@ -108,8 +69,9 @@ class _ProductsScreenState extends State<ProductsScreen> {
               child: ConditionalBuilder(
                   fallback: (context) => defaultCircularProgressIndicator(),
                   condition: ShopCubit.get(context).userModel != null &&
+                      state is! ShopLoadingGetProfileDataState &&
                       ShopCubit.get(context).cartModel != null &&
-                      //  imageUrl != null &&
+                      ShopCubit.get(context).categoriesDetailsModel != null &&
                       emailAddress != null &&
                       ShopCubit.get(context).homeModel != null,
                   builder: (context) {
@@ -239,7 +201,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                                             imageUrl: ShopCubit.get(context)
                                                 .userModel!
                                                 .data!
-                                                .image!,
+                                                .image,
                                           ),
                                         ),
                                       ),
@@ -301,16 +263,13 @@ class _ProductsScreenState extends State<ProductsScreen> {
                   }),
             )),
           ),
-        );
-      },
-    );
+        ),
+      );
+    });
   }
 
-  Widget productsModelBuilder(
-          HomeModel? homeModel,
-          //ProductDetailsModel? productDetailsModel,
-          CategoriesModel? categoriesModel,
-          BuildContext context) =>
+  Widget productsModelBuilder(HomeModel? homeModel,
+          CategoriesModel? categoriesModel, BuildContext context) =>
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -350,11 +309,41 @@ class _ProductsScreenState extends State<ProductsScreen> {
                   child: ListView.separated(
                       scrollDirection: Axis.horizontal,
                       shrinkWrap: true,
-                      itemBuilder: (context, index) =>
-                          buildCategoryItem(context, index),
+                      itemBuilder: (context, index) {
+                        if (index == 0) {
+                          // Add the "All Products" button
+                          return defaultButton(
+                            onPressed: () async {
+                              ShopCubit.get(context).categoryPressed(-1);
+                              //ShopCubit.get(context).getFavoritesData();
+                            },
+                            text: 'All',
+                            width: 120,
+                            height: 40,
+                            fontSize: 13,
+                            isUpperCase: false,
+                            textColor: AppColors.fontColor,
+                            color: ShopCubit.get(context).categoryIndex == -1
+                                ? AppColors.containerColor
+                                : AppColors.elevColor,
+                          );
+                        } else {
+                          // Add the category buttons
+                          return Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              buildCategoryItem(
+                                context,
+                                index - 1, // Adjusted index for categories
+                                ShopCubit.get(context).categoriesModel,
+                              ),
+                            ],
+                          );
+                        }
+                      },
                       separatorBuilder: (context, index) =>
                           const SizedBox(width: 10.0),
-                      itemCount: categoriesModel!.data!.data.length + 1),
+                      itemCount:1+ 5),
                 ),
                 const SizedBox(
                   height: 15.0,
@@ -362,56 +351,85 @@ class _ProductsScreenState extends State<ProductsScreen> {
               ],
             ),
           ),
-          GridView.count(
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            crossAxisCount: 2,
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 15,
-            childAspectRatio: 1 / 1.6,
-            children: List.generate(
-                ShopCubit.get(context).categoryIndex == 0
-                    ? homeModel.data!.products.length
-                    : ShopCubit.get(context)
-                        .categories[ShopCubit.get(context).categoryIndex - 1]
-                        .length, (index) {
-              //changeImage(productDetailsModel!.data!.data[index].image);
-              return buildGridProducts(
-                  ShopCubit.get(context).categoryIndex == 0
-                      ? homeModel.data!.products[index]
-                      : ShopCubit.get(context).categories[
-                          ShopCubit.get(context).categoryIndex - 1][index],
-                  context,
-                  index);
-            }),
+          BlocBuilder<ShopCubit, ShopStates>(
+            // TODO: implement listener
+
+            builder: (context, state) {
+              if (state is ShopLoadingCategoriesDetailsDataState &&
+                  ShopCubit.get(context).categoryIndex != -1) {
+                return defaultCircularProgressIndicator();
+              }
+              return GridView.count(
+                physics: const NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                crossAxisCount: 2,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 15,
+                childAspectRatio: 1 / 1.6,
+                children: List.generate(
+                    ShopCubit.get(context).categoryIndex == -1
+                        ? homeModel.data!.products.length
+                        : ShopCubit.get(context)
+                            .categoriesDetailsModel!
+                            .data!
+                            .data!
+                            .length, (index) {
+                  return buildGridProducts(
+                      ShopCubit.get(context).categoryIndex == -1
+                          ? homeModel.data!.products[index]
+                          : ShopCubit.get(context)
+                              .categoriesDetailsModel!
+                              .data!
+                              .data![index],
+                      context,
+                      index);
+                }),
+              );
+            },
           )
         ],
       );
 
-  Widget buildCategoryItem(BuildContext context, int index) {
+  Widget buildCategoryItem(
+      BuildContext context, int index, CategoriesModel? categoriesModel) {
     Color buttonColor = ShopCubit.get(context).categoryIndex == index
         ? AppColors.containerColor
         : ShopCubit.get(context).categoryColor;
     return SizedBox(
       width: 120,
-      height: 30,
+      height: 40,
       child: defaultButton(
           color: buttonColor,
-          onPressed: () {
+          onPressed: () async {
             ShopCubit.get(context).categoryPressed(index);
+            ShopCubit.get(context).getCategoriesDetailsData(
+                ShopCubit.get(context).categoriesModel!.data!.data[index].id!);
           },
-          text: ShopCubit.get(context).getCategoryName(index),
-          fontSize: 14,
+          text: ShopCubit.get(context)
+                  .categoriesModel!
+                  .data!
+                  .data[index]
+                  .name[0]
+                  .toUpperCase() +
+              ShopCubit.get(context)
+                  .categoriesModel!
+                  .data!
+                  .data[index]
+                  .name
+                  .substring(1)
+                  .toLowerCase(),
+          fontSize: 13,
           height: 30,
           isUpperCase: false,
           textColor: AppColors.fontColor),
     );
   }
 
-  Widget buildGridProducts(ProductModel model, BuildContext context, index) {
+  Widget buildGridProducts(model, BuildContext context, index) {
     // String img =
     //     'https://student.valuxapps.com/storage/uploads/products/1615440689Oojt6.item_XXL_36330138_142814947.jpeg';
     // ShopCubit.get(context).removeBackgroud(img);
+
     return InkWell(
       onTap: () {
         //print(model.id);

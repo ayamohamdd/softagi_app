@@ -3,10 +3,10 @@ class LoginModel {
   String? message;
   UserData? data;
 
-  LoginModel.fromJson(Map<String, dynamic> json) {
-    status = json["status"];
+  LoginModel.fromJson(Map<String, dynamic>? json) {
+    status = json!["status"];
     message = json["message"];
-    data = UserData.fromJson(json['data']);
+    data = json["data"]!=null? UserData.fromJson(json['data']): null;
   }
 }
 

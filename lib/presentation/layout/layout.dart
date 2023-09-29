@@ -1,18 +1,24 @@
-import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:store_app/business_logic/cubit/home/shop_cubit.dart';
+import 'package:store_app/data/local/cache_helper.dart';
+import 'package:store_app/presentation/screens/auth/login.dart';
+import 'package:store_app/shared/components/navigate.dart';
 import 'package:store_app/shared/constants/colors.dart';
-
 import '../../business_logic/cubit/home/shop_states.dart';
 
-class LayoutScreen extends StatelessWidget {
+class LayoutScreen extends StatefulWidget {
   const LayoutScreen({super.key});
+
+  @override
+  State<LayoutScreen> createState() => _LayoutScreenState();
+}
+
+class _LayoutScreenState extends State<LayoutScreen> {
 
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<ShopCubit, ShopStates>(
-      listener: (context, state) {},
       builder: (context, state) {
         var cubit = ShopCubit.get(context);
         // Change color of icon
@@ -38,8 +44,8 @@ class LayoutScreen extends StatelessWidget {
           bottomNavigationBar: Stack(
             children: [
               AnimatedContainer(
-                padding:
-                    const EdgeInsets.only(bottom: 8.0, left: 5, right: 6, top: 3),
+                padding: const EdgeInsets.only(
+                    bottom: 8.0, left: 5, right: 6, top: 3),
                 height: 75.0,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(50),
@@ -72,20 +78,26 @@ class LayoutScreen extends StatelessWidget {
                       ]),
                 ),
               ),
-            Positioned(
+              Positioned(
                 top: 2.5,
-                left: (cubit.currentIndex) * (MediaQuery.of(context).size.width / 3)+35,
+                left: (cubit.currentIndex) *
+                        (MediaQuery.of(context).size.width / 3) +
+                    35,
                 child: Container(
-                  
                   width: 52,
                   height: 2,
-                  
                   color: Colors.white,
                 ),
               ),
             ],
           ),
         );
+      },
+      listener: (BuildContext context, ShopStates state) {
+        if (state is ShopSuccessLogoutState) {
+          CacheHelper.sharedPreferences.remove('login');
+          navigateAndFinish(context, LoginScreen());
+        }
       },
     );
   }

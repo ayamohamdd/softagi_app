@@ -1,8 +1,9 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:store_app/business_logic/cubit/home/shop_cubit.dart';
-import 'package:store_app/presentation/models/search_model.dart';
 import 'package:store_app/presentation/screens/home/product_details.dart';
 import 'package:store_app/shared/components/navigate.dart';
+import 'package:store_app/shared/components/progress_indicator.dart';
 import 'package:store_app/shared/constants/colors.dart';
 
 Widget buildProductModel(model, context) => InkWell(
@@ -12,8 +13,8 @@ Widget buildProductModel(model, context) => InkWell(
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-            boxShadow: [
-              const BoxShadow(color: AppColors.bluredColor, blurRadius: 5)
+            boxShadow: const [
+              BoxShadow(color: AppColors.bluredColor, blurRadius: 5)
             ],
             borderRadius: BorderRadius.circular(10),
             border: Border.all(color: AppColors.buttonOpacityColor, width: 0.3),
@@ -27,8 +28,13 @@ Widget buildProductModel(model, context) => InkWell(
                 Padding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                  child: Image(
-                    image: NetworkImage(model.image),
+                  child: CachedNetworkImage(
+                    imageUrl: model.image,
+                    placeholder: (context, url) =>
+                                                defaultCircularProgressIndicator(),
+                                            errorWidget:
+                                                (context, url, error) =>
+                                                    Icon(Icons.error),
                     width: 100,
                     height: 100,
                     fit: BoxFit.contain,

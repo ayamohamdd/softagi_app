@@ -9,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:store_app/business_logic/cubit/home/shop_cubit.dart';
 import 'package:store_app/business_logic/cubit/home/shop_states.dart';
 import 'package:store_app/data/local/cache_helper.dart';
+import 'package:store_app/presentation/layout/layout.dart';
 import 'package:store_app/presentation/models/login_model.dart';
 import 'package:store_app/presentation/screens/profile/change_password.dart';
 import 'package:store_app/shared/components/button.dart';
@@ -17,7 +18,7 @@ import 'package:store_app/shared/components/navigate.dart';
 import 'package:store_app/shared/components/progress_indicator.dart';
 import 'package:store_app/shared/constants/colors.dart';
 import 'package:store_app/shared/constants/strings.dart';
-import 'package:store_app/shared/constants/temp.dart';
+import 'package:store_app/shared/constants/var.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -30,138 +31,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   File? image;
   String? imageUrl;
   final imagePicker = ImagePicker();
-  @override
-  // void initState() {
-  //   super.initState();
-
-  //   // Use the user's email address to construct the Firebase Storage reference
-  //   final String userEmail = emailAddress!;
-  //   final String fileName = 'profile_image.jpg';
-
-  //   final Reference storageReference = FirebaseStorage.instance
-  //       .ref()
-  //       .child('user_images/$userEmail/$fileName');
-
-  //   // Download the image
-  //   storageReference.getDownloadURL().then((url) {
-  //     setState(() {
-  //       imageUrl = url;
-  //     });
-  //   }).catchError((error) {
-  //     print('Error downloading image: $error');
-  //   });
-  //   // Trigger the image upload when the screen is first loaded
-  //   //uploadImage();
-  // }
-
-  Future<void> uploadImage() async {
-    try {
-      final String userEmail = emailAddress!;
-      if (image == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Please select an image to upload.'),
-          ),
-        );
-        return;
-      }
-
-      final Reference storageReference = FirebaseStorage.instance
-          .ref()
-          .child('user_images/$userEmail/profile_image.jpg');
-
-      UploadTask uploadTask = storageReference.putFile(image!);
-
-      await uploadTask.whenComplete(() {
-        // Image uploaded successfully
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Image uploaded successfully!'),
-          ),
-        );
-        ShopCubit.get(context).getUser();
-      });
-    } catch (e) {
-      // Handle errors
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error uploading image: $e'),
-        ),
-      );
-    }
-  }
-
-  // Future pickImage() async {
-  //   var pickedImage = await imagePicker.pickImage(source: ImageSource.gallery);
-  //   if (pickedImage == null) {
-  //     return;
-  //   }
-  //   if (pickedImage != null) {
-  //     // Handle the picked image (e.g., upload it and update the user's profile)
-  //     ShopCubit.get(context).uploadImage(
-  //       image: File(pickedImage.path),
-  //       userEmail: ShopCubit.get(context).userModel!.data!.email,
-  //     );
-  //   }
-  //   final imageTemporary = File(pickedImage.path);
-  //   setState(() {
-  //     image = imageTemporary;
-  //     ShopCubit.get(context).userModel!.data!.image = image!.path;
-  //   });
-  //   ShopCubit.get(context).uploadImage(
-  //       image: image!,
-  //       userEmail: ShopCubit.get(context).userModel!.data!.email);
-  // }
-
-  Future<void> pickImage() async {
-  final imagePicker = ImagePicker();
-
-  // Show a dialog with options for choosing the image source
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text('Select Image Source'),
-        actions: <Widget>[
-          TextButton(
-            child: Text('Camera',style: TextStyle(fontWeight: FontWeight.bold,color: AppColors.buttonColor),),
-            onPressed: () async {
-              Navigator.of(context).pop();
-              var pickedImage = await imagePicker.pickImage(
-                source: ImageSource.camera,
-              );
-              if (pickedImage != null) {
-                handlePickedImage(File(pickedImage.path));
-              }
-            },
-          ),
-          TextButton(
-            child: Text('Gallery',style: TextStyle(fontWeight: FontWeight.bold,color: AppColors.buttonColor),),
-            onPressed: () async {
-              Navigator.of(context).pop();
-              var pickedImage = await imagePicker.pickImage(
-                source: ImageSource.gallery,
-              );
-              if (pickedImage != null) {
-                handlePickedImage(File(pickedImage.path));
-              }
-            },
-          ),
-        ],
-      );
-    },
-  );
-}
-void handlePickedImage(File imageFile) {
-  setState(() {
-    image = imageFile;
-    ShopCubit.get(context).userModel!.data!.image = imageFile.path;
-  });
-  ShopCubit.get(context).uploadImage(
-    image: imageFile,
-    userEmail: ShopCubit.get(context).userModel!.data!.email,
-  );
-}
 
   final _formKey = GlobalKey<FormState>();
   TextEditingController email = TextEditingController();
@@ -171,15 +40,139 @@ void handlePickedImage(File imageFile) {
 
   @override
   Widget build(BuildContext context) {
-    print(image);
+    // print(ShopCubit.get(context).userModel);
+
+    //print(image);
     return BlocBuilder<ShopCubit, ShopStates>(
       builder: (context, state) {
+        Future<void> uploadImage() async {
+          try {
+            final String userEmail = emailAddress!;
+            if (image == null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Please select an image to upload.'),
+                ),
+              );
+              return;
+            }
+
+            final Reference storageReference = FirebaseStorage.instance
+                .ref()
+                .child('user_images/$userEmail/profile_image.jpg');
+
+            UploadTask uploadTask = storageReference.putFile(image!);
+
+            await uploadTask.whenComplete(() {
+              // Image uploaded successfully
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Image uploaded successfully!'),
+                ),
+              );
+              ShopCubit.get(context).getUser();
+            });
+          } catch (e) {
+            // Handle errors
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Error uploading image: $e'),
+              ),
+            );
+          }
+        }
+
+        void handlePickedImage(File imageFile) async {
+          setState(() {
+            image = imageFile;
+            ShopCubit.get(context).userModel!.data!.image = image!.path;
+          });
+          await ShopCubit.get(context)
+              .uploadImage(
+            image: imageFile,
+            userEmail: ShopCubit.get(context).userModel!.data!.email,
+          )
+              .then((value) {
+            setState(() {
+              image = imageFile;
+            });
+
+            // Trigger a rebuild of the widget tree.
+            setState(() {});
+            ShopCubit.get(context).getUser();
+          });
+        }
+
+        Future<void> pickImage() async {
+          final imagePicker = ImagePicker();
+
+          // Show a dialog with options for choosing the image source
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text('Select Image Source'),
+                actions: <Widget>[
+                  TextButton(
+                    child: Text(
+                      'Camera',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.buttonColor),
+                    ),
+                    onPressed: () async {
+                      Navigator.of(context).pop();
+                      var pickedImage = await imagePicker.pickImage(
+                        source: ImageSource.camera,
+                      );
+                      if (pickedImage != null) {
+                        handlePickedImage(File(pickedImage.path));
+                      }
+                    },
+                  ),
+                  TextButton(
+                    child: Text(
+                      'Gallery',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.buttonColor),
+                    ),
+                    onPressed: () async {
+                      Navigator.of(context).pop();
+                      var pickedImage = await imagePicker.pickImage(
+                        source: ImageSource.gallery,
+                      );
+                      if (pickedImage != null) {
+                        handlePickedImage(File(pickedImage.path));
+                      }
+                    },
+                  ),
+                ],
+              );
+            },
+          );
+        }
+
+        if (ShopCubit.get(context).userModel == null|| state is ShopLoadingUpdateUserDataState) {
+          return Scaffold(
+            backgroundColor: AppColors.backgroundColor,
+            body: defaultCircularProgressIndicator(),
+          );
+        }
         UserData? userData = ShopCubit.get(context).userModel!.data;
         email.text = userData!.email;
         name.text = userData.name;
         phone.text = userData.phone;
+        //   userData.image = image!.path;
         return Scaffold(
           appBar: AppBar(
+            leading: IconButton(
+                onPressed: () {
+                  navigateBack(context);
+                  //ShopCubit.get(context).currentIndex = 2;
+                  // ShopCubit.get(context).getUser();
+                },
+                icon: Icon(Icons.arrow_back)),
             title: const Text('My profile'),
             centerTitle: true,
             titleTextStyle: const TextStyle(
@@ -230,18 +223,24 @@ void handlePickedImage(File imageFile) {
                               radius: 65,
                               backgroundColor: AppColors.backgroundColor,
                               // backgroundImage: CachedNetworkImageProvider(imageUrl!)
-                              child: ClipOval(
-                                  child: CachedNetworkImage(
-                                width: 230,
-                                height: 230,
-                                fit: BoxFit.cover,
-                                placeholder: (context, url) =>
-                                    defaultCircularProgressIndicator(),
-                                errorWidget: (context, url, error) =>
-                                    defaultCircularProgressIndicator(),
-                                //    Center(child: Text('Image will be uploaded soon',style: TextStyle(fontSize: 12,color: AppColors.fontColor),textAlign: TextAlign.center,),),
-                                imageUrl: userData.image,
-                              )),
+                              child: state
+                                      is ShopLoadingProfileImageUploadState
+                                  ? defaultCircularProgressIndicator()
+                                  : ClipOval(
+                                      child: CachedNetworkImage(
+                                      width: 230,
+                                      height: 230,
+                                      fit: BoxFit.cover,
+                                      placeholder: (context, url) =>
+                                          defaultCircularProgressIndicator(),
+                                      errorWidget: (context, url, error) =>
+                                          defaultCircularProgressIndicator(),
+                                      //    Center(child: Text('Image will be uploaded soon',style: TextStyle(fontSize: 12,color: AppColors.fontColor),textAlign: TextAlign.center,),),
+                                      imageUrl: ShopCubit.get(context)
+                                          .userModel!
+                                          .data!
+                                          .image,
+                                    )),
                             ),
                             CircleAvatar(
                               radius: 18,
@@ -254,8 +253,8 @@ void handlePickedImage(File imageFile) {
                                 ),
                                 onPressed: () async {
                                   pickImage();
-                                  // ShopCubit.get(context).getUser();
-                                  print('image ${userData.image}');
+                                  //ShopCubit.get(context).getUser();
+                                  //print('image ${userData.image}');
                                 },
                               ),
                             )

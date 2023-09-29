@@ -37,19 +37,32 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: ((BuildContext context) => LoginCubit()),
+      create: (context) => LoginCubit(),
       child: BlocConsumer<LoginCubit, LoginStates>(
         listener: (BuildContext context, LoginStates state) {
           if (state is LoginSuccessState) {
-            if (state.loginModel!.status!) {
+            if (state.loginModel!.status == true) {
+              //final shopCubit = context.read<ShopCubit>();
               CacheHelper.saveData(
                       key: 'login', value: state.loginModel!.data!.token)
                   .then((value) {
-                navigateAndFinish(context, const LayoutScreen());
+                print(state.loginModel!.data!.token);
                 token = state.loginModel!.data!.token;
+                emailAddress = state.loginModel!.data!.email;
+                ShopCubit.get(context).currentIndex = 0;
+                ShopCubit.get(context).getUser();
+                //ShopCubit.get(context).categories = [];
+                ShopCubit.get(context).getHomeData();
+                ShopCubit.get(context).getCartData();
+                ShopCubit.get(context).getFavoritesData();
+                ShopCubit.get(context).getCategoriesData();
+                ShopCubit.get(context).categoryIndex = -1;
+
+                Navigator.pushReplacement(context,
+                    MaterialPageRoute(builder: (context) => LayoutScreen()));
               });
             } else {
-              defaultToast(
+              return defaultToast(
                 state: ToastState.ERROR,
                 message: state.loginModel!.message!,
               );
@@ -170,6 +183,13 @@ class LoginScreen extends StatelessWidget {
                                               email: email.text,
                                               password: password.text);
                                         }
+                                        if (LoginCubit.get(context)
+                                                .loginModel!
+                                                .status ==
+                                            true) {
+                                          LoginCubit.get(context)
+                                              .updateToke(token!);
+                                        }
                                       }),
                                   // const SizedBox(
                                   //   height: 5.0,
@@ -204,28 +224,7 @@ class LoginScreen extends StatelessWidget {
                                   const SizedBox(
                                     height: 10.0,
                                   ),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      CircleAvatar(
-                                        backgroundColor: AppColors.formColor,
-                                        child: Image.asset(
-                                            'assets/images/googleicon.png'),
-                                      ),
-                                      const SizedBox(
-                                        width: 10.0,
-                                      ),
-                                      CircleAvatar(
-                                        backgroundColor: AppColors.formColor,
-                                        child: Image.asset(
-                                          'assets/images/Facebook_icon.svg.webp',
-                                          height: 30.0,
-                                          width: 30,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
+                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       const Text("Don't have an account?"),

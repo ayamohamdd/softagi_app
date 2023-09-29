@@ -4,18 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:store_app/business_logic/cubit/auth/register/register_cubit.dart';
+import 'package:store_app/business_logic/cubit/home/shop_cubit.dart';
 import 'package:store_app/data/local/cache_helper.dart';
+import 'package:store_app/presentation/layout/layout.dart';
 import 'package:store_app/presentation/screens/auth/login.dart';
 import 'package:store_app/shared/components/button.dart';
 import 'package:store_app/shared/components/form.dart';
 import 'package:store_app/shared/components/progress_indicator.dart';
 import 'package:store_app/shared/constants/colors.dart';
-import 'package:store_app/shared/constants/temp.dart';
+import 'package:store_app/shared/constants/strings.dart';
+import 'package:store_app/shared/constants/var.dart';
 
 import '../../../business_logic/cubit/auth/register/register_states.dart';
 import '../../../shared/components/navigate.dart';
 import '../../../shared/components/toast.dart';
-import '../home/home.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -45,11 +47,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
       child: BlocConsumer<RegisterCubit, RegisterStates>(
           listener: (BuildContext context, RegisterStates state) {
         if (state is RegisterSuccessState) {
-          if (state.loginModel!.status!) {
+          if (state.loginModel!.status == true) {
             CacheHelper.saveData(
                     key: 'login', value: state.loginModel!.data!.token)
                 .then((value) {
-              navigateAndFinish(context, ProductsScreen());
+              token = state.loginModel!.data!.token;
+              emailAddress = state.loginModel!.data!.email;
+              ShopCubit.get(context).currentIndex = 0;
+              ShopCubit.get(context).getUser();
+              ShopCubit.get(context).getHomeData();
+              ShopCubit.get(context).getCartData();
+              ShopCubit.get(context).getFavoritesData();
+              ShopCubit.get(context).getCategoriesData();
+              ShopCubit.get(context).categoryIndex = -1;
+
+              navigateAndFinish(context, const LayoutScreen());
             });
           } else {
             defaultToast(
@@ -263,27 +275,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                           defaultCircularProgressIndicator()),
                                   const SizedBox(
                                     height: 10.0,
-                                  ),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      CircleAvatar(
-                                        backgroundColor: AppColors.formColor,
-                                        child: Image.asset(
-                                            'assets/images/googleicon.png'),
-                                      ),
-                                      const SizedBox(
-                                        width: 10.0,
-                                      ),
-                                      CircleAvatar(
-                                        backgroundColor: AppColors.formColor,
-                                        child: Image.asset(
-                                          'assets/images/Facebook_icon.svg.webp',
-                                          height: 30.0,
-                                          width: 30,
-                                        ),
-                                      ),
-                                    ],
                                   ),
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.center,

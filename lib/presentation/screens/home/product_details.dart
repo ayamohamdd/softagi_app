@@ -1,11 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_indicator/carousel_indicator.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-
 import 'package:store_app/business_logic/cubit/home/shop_cubit.dart';
 import 'package:store_app/business_logic/cubit/home/shop_states.dart';
 import 'package:store_app/presentation/models/product_details_model.dart';
@@ -13,7 +11,7 @@ import 'package:store_app/presentation/screens/home/carts.dart';
 import 'package:store_app/shared/components/button.dart';
 import 'package:store_app/shared/components/navigate.dart';
 import 'package:store_app/shared/components/progress_indicator.dart';
-import 'package:store_app/shared/constants/strings.dart';
+import 'package:store_app/shared/components/toast.dart';
 
 import '../../../shared/constants/colors.dart';
 
@@ -33,31 +31,46 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   CarouselController carouselController = CarouselController();
 
   @override
+  int activeIndex = 0;
+  @override
   void initState() {
+    ShopCubit.get(context).getProductDetailsData(widget.product_id);
+    // TODO: implement initState
     super.initState();
-    ShopCubit.get(context).id = widget.product_id;
-
-    ShopCubit.get(context).getProductDetailsData();
   }
 
   @override
-  int activeIndex = 0;
-  @override
-  @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ShopCubit, ShopStates>( builder: (context, state) {
-      // ShopCubit.get(context).changeCart(55);
-      print(ShopCubit.get(context).changeCartModel);
+    return BlocConsumer<ShopCubit, ShopStates>(listener: (context, state) {
+      if (state is ShopSuccessChangeCartDataState) {
+        if (state.model!.status == true) {
+          defaultToast(
+              message: state.model!.message!, state: ToastState.SUCCESS);
+        }
+      }
+    }, builder: (context, state) {
+      //ShopCubit.get(context).id = widget.product_id;
+      print(ShopCubit.get(context).productDetailsModel);
+      if (ShopCubit.get(context).productDetailsModel == null ||
+          ShopCubit.get(context).cartModel == null ||
+          ShopCubit.get(context).favorites.isEmpty) {
+        print(ShopCubit.get(context).favoritesModel);
+        return Scaffold(
+          backgroundColor: AppColors.backgroundColor,
+          body: defaultCircularProgressIndicator(),
+        );
+      }
+
       if (state is ProductLoadingDataState) {
         // Handle loading state, show a loading indicator or placeholder
-        return  Scaffold(
+        return Scaffold(
             backgroundColor: AppColors.backgroundColor,
             body: defaultCircularProgressIndicator());
       }
       ProductDetailsModel? productModel =
           ShopCubit.get(context).productDetailsModel;
       Widget additionalImage = CachedNetworkImage(
-        imageUrl:productModel!.data!.image,
+        imageUrl: productModel!.data!.image,
         width: 300,
         height: 300,
         fit: BoxFit.contain,
@@ -74,6 +87,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         existingImages.insert(0, additionalImage);
       }
       print(ShopCubit.get(context).cart.length);
+      // ShopCubit.get(context).getProductDetailsData();
 
       return SafeArea(
         child: Scaffold(
@@ -291,10 +305,11 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                         child: defaultButton(
                           onPressed: () {
                             ShopCubit.get(context)
-                                      .cart[productModel.data!.id] ==
-                                  true
-                              ? 
-                            navigateTo(context, CartScreen()): ShopCubit.get(context).changeCart(productModel.data!.id);
+                                        .cart[productModel.data!.id] ==
+                                    true
+                                ? navigateTo(context, CartScreen())
+                                : ShopCubit.get(context)
+                                    .changeCart(productModel.data!.id);
                           },
                           text: ShopCubit.get(context)
                                       .cart[productModel.data!.id] ==
