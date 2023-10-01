@@ -7,7 +7,7 @@ I'm thrilled to announce the launch of my latest project, the Softagi Flutter E-
 
 **Splash Screen**: Experience a stunning Softagi-themed splash screen on app launch.
 
-**Onboarding###**: Discover our range of services through a user-friendly onboarding experience.
+**Onboarding**: Discover our range of services through a user-friendly onboarding experience.
 
 **Authentication**: Securely log in or register using API integration for a seamless user experience.
 
