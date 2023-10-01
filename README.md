@@ -3,7 +3,7 @@
 🚀 Exciting News! Introducing the 'Softagi E-commerce App' with Cubit State Management 🛒
 I'm thrilled to announce the launch of my latest project, the Softagi Flutter E-commerce App! 📱
 
-🌟 ##Features:##
+🌟 **Features:**
 
 ###Splash Screen###: Experience a stunning Softagi-themed splash screen on app launch.
 
