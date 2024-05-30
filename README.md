@@ -22,4 +22,5 @@ I'm thrilled to announce the launch of my latest project, the Softagi Flutter E-
 ###Explore Screen###: Find your favorite products and categories in one place.
 Profile: Personalize your profile and upload a profile picture.
 
+## Figma UI: https://www.figma.com/file/cBjWjIOg5V39YxDJX1ePpb/Untitled?type=design&amp;node-id=0%3A1&amp;mode=design&amp;t=vivFTwMFOgISENtb-1
 🛍️ Whether you're a shopaholic or just looking for that perfect item, Softagi E-commerce App has you covered! I'm proud to use Cubit for state management, ensuring a smooth and responsive user experience.
