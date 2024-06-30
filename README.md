@@ -24,3 +24,6 @@ Profile: Personalize your profile and upload a profile picture.
 
 ## Figma UI: https://www.figma.com/file/cBjWjIOg5V39YxDJX1ePpb/Untitled?type=design&amp;node-id=0%3A1&amp;mode=design&amp;t=vivFTwMFOgISENtb-1
 🛍️ Whether you're a shopaholic or just looking for that perfect item, Softagi E-commerce App has you covered! I'm proud to use Cubit for state management, ensuring a smooth and responsive user experience.
+
+## You can check The App run video 
+https://www.linkedin.com/posts/aya-mohammed1839_exciting-news-introducing-the-softagi-activity-7113640030241210368-5NM1?utm_source=share&utm_medium=member_android
